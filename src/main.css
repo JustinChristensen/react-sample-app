@@ -1,1 +1,7 @@
 @import 'bootstrap/dist/css/bootstrap.css';
+@import 'bootstrap-icons/font/bootstrap-icons.css';
+
+.header {
+    background-color: var(--bs-teal);
+    color: var(--bs-white);
+}
