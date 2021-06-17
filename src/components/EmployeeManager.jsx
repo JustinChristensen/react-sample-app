@@ -1,54 +1,51 @@
 import { Fragment } from 'react';
+import PropTypes from 'prop-types';
+import { actions } from '../reducers';
+import { usePropsOrState } from '../hooks/usePropsOrState.js';
 import EmployeeTable from './EmployeeTable.jsx';
-import { Named, WithUid } from '../hocs';
-import { suffixWith } from '../utils/string.js';
+import EmployeeFields from './EmployeeFields';
+import { useT } from '../hooks/useT';
 
-export const EntryForm = WithUid(Named('EntryForm')(({ $uid }) => {
-    const [fnameId, lnameId, emailId, departmentId] = suffixWith(`-${$uid}`, [
-        'first-name',
-        'last-name',
-        'email',
-        'department'
-    ]);
+export const EmployeeForm = _props => {
+    const props = usePropsOrState(_props, (s, dispatch) => ({
+        onEmployeeFormSubmit: e => {
+            e.preventDefault();
+
+            const form = e.target;
+
+            dispatch(actions.ADD_EMPLOYEE({
+                firstName: form.firstName.value,
+                lastName: form.lastName.value,
+                email: form.email.value,
+                department: form.department.value
+            }));
+
+            form.reset();
+        }
+    }));
+
+    const $t = useT(props);
 
     return (
-        <form className="row mb-4">
-            <div className="col">
-                <label htmlFor={fnameId} className="visually-hidden">First Name</label>
-                <input name="firstName" placeholder="John" type="text" id={fnameId} className="form-control" required />
-            </div>
-
-            <div className="col">
-                <label htmlFor={lnameId} className="visually-hidden">Last Name</label>
-                <input name="lastName" placeholder="Doe" type="text" id={lnameId} className="form-control" required />
-            </div>
-
-            <div className="col">
-                <label htmlFor={emailId} className="visually-hidden">Email</label>
-                <input name="email" placeholder="john.doe@foo.com" type="email" id={emailId} className="form-control" />
-            </div>
-
-            <div className="col">
-                <label htmlFor={departmentId} className="visually-hidden">Department</label>
-                <select name="department" id={departmentId} className="form-control" required>
-                    <option value="">Select Department</option>
-                    <option value="it">Information Technology</option>
-                    <option value="maintenance">Maintenance</option>
-                    <option value="hr">Human Resources</option>
-                    <option value="bisdev">Business Development</option>
-                </select>
-            </div>
+        <form className="row mb-4" onSubmit={props.onEmployeeFormSubmit}>
+            <EmployeeFields fieldClasses="col" />
 
             <div className="col d-flex justify-content-center">
-                <button type="submit" className="btn btn-primary"><small>Add Employee</small></button>
+                <button type="submit" className="btn btn-primary" title={$t('employeeForm.actions.addTitle')}>
+                    <small>{$t('employeeForm.actions.add')}</small>
+                </button>
             </div>
         </form>
     );
-}));
+};
+
+EmployeeForm.propTypes = {
+    onEmployeeFormSubmit: PropTypes.func
+};
 
 export const EmployeeManager = () => (
     <Fragment>
-        <EntryForm />
+        <EmployeeForm />
         <EmployeeTable />
     </Fragment>
 );

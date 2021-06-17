@@ -1,4 +1,4 @@
-export const Named = name => component => {
+export const Named = (name, component) => {
     component.displayName = name;
     return component;
 };

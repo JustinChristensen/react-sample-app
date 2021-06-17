@@ -2,7 +2,6 @@ const restrictedGlobals = require('confusing-browser-globals');
 
 const restrictedFeatures = [
     'WithStatement',
-    'ClassDeclaration',
     'ClassExpression'
 ];
 

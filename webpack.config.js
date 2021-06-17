@@ -1,5 +1,6 @@
 const { resolve } = require('path');
 const HtmlPlugin = require('html-webpack-plugin');
+const CopyPlugin = require('copy-webpack-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
@@ -35,7 +36,8 @@ const devServer = () => ({
 module.exports = {
     mode: env,
     target: 'web', // https://github.com/webpack/webpack-dev-server/issues/2758
-    entry: './src',
+    context: resolve('src'),
+    entry: '.',
     devtool: devOrNot('inline-source-map', 'source-map'),
     resolve: {
         extensions: ['.js', '.jsx', '.json']
@@ -58,5 +60,8 @@ module.exports = {
     plugins: [
         new HtmlPlugin({ title }),
         new MiniCssExtractPlugin({ filename: 'main.css' }),
+        new CopyPlugin({
+            patterns: [{ from: 'messages', to: 'messages' }]
+        })
     ]
 };
