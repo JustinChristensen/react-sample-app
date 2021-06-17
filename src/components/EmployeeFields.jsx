@@ -62,20 +62,20 @@ export const EmployeeFields = WithUid(Named('EmployeeFields', _props => {
 
             <Field className={fieldClasses}>
                 <label htmlFor={fnameId} className="visually-hidden">{$t('employeeForm.hiddenLabels.firstName')}</label>
-                <input name="firstName" type="text" id={fnameId} className={inputClasses}
-                    placeholder={$t('employeeForm.placeholders.firstName')} value={employee.firstName} onChange={changeHandler} onBlur={blurHandler} required />
+                <input name="firstName" type="text" id={fnameId} className={inputClasses} placeholder={$t('employeeForm.placeholders.firstName')}
+                    value={employee.firstName} onChange={changeHandler} onBlur={blurHandler} required />
             </Field>
 
             <Field className={fieldClasses}>
                 <label htmlFor={lnameId} className="visually-hidden">{$t('employeeForm.hiddenLabels.lastName')}</label>
-                <input name="lastName" type="text" id={lnameId} className={inputClasses}
-                    placeholder={$t('employeeForm.placeholders.lastName')} value={employee.lastName} onChange={changeHandler} onBlur={blurHandler} required />
+                <input name="lastName" type="text" id={lnameId} className={inputClasses} placeholder={$t('employeeForm.placeholders.lastName')}
+                    value={employee.lastName} onChange={changeHandler} onBlur={blurHandler} required />
             </Field>
 
             <Field className={fieldClasses}>
                 <label htmlFor={emailId} className="visually-hidden">{$t('employeeForm.hiddenLabels.email')}</label>
-                <input name="email" type="email" id={emailId} className={inputClasses}
-                    placeholder={$t('employeeForm.placeholders.email')} value={employee.email} onChange={changeHandler} onBlur={blurHandler} required />
+                <input name="email" type="email" id={emailId} className={inputClasses} placeholder={$t('employeeForm.placeholders.email')}
+                    value={employee.email} onChange={changeHandler} onBlur={blurHandler} required />
             </Field>
 
             <Field className={fieldClasses}>
