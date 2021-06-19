@@ -1,7 +1,38 @@
 @import 'bootstrap/dist/css/bootstrap.css';
 @import 'bootstrap-icons/font/bootstrap-icons.css';
+@import 'flag-icon-css/css/flag-icon.css';
 
 .header {
     background-color: var(--bs-teal);
     color: var(--bs-white);
+}
+
+.header-menu .dropdown-toggle::after {
+    display: none;
+}
+
+.header-menu button {
+    border: 0;
+    border-radius: 0;
+}
+
+.header-menu .dropdown-menu {
+    border: 0;
+    border-radius: 0;
+    min-width: auto;
+}
+
+.header-menu:hover .dropdown-toggle,
+.header-menu:focus-within .dropdown-toggle {
+    background-color: var(--bs-gray-dark);
+}
+
+.header-menu .dropdown-menu {
+    display: block;
+    overflow: hidden;
+    height: 0;
+}
+
+.header-menu .dropdown-menu:focus-within {
+    height: auto;
 }

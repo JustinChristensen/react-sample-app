@@ -1,6 +1,6 @@
 import { Fragment } from 'react';
-import EmployeeManager from './EmployeeManager.jsx';
-import Header from './Header.jsx';
+import { EmployeeManager } from './EmployeeManager.jsx';
+import { Header } from './Header.jsx';
 
 const App = () => (
     <Fragment>

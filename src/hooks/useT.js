@@ -1,68 +1,73 @@
 import IntlMessageFormat from 'intl-messageformat';
-import { shallowEqual, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { get } from '../utils/object.js';
+import { isObject } from '../utils/eq.js';
 
 // boooooo
 class NotMessageError extends Error {
-    constructor(message) {
-        super(message);
+    constructor(key) {
+        super(`Key '${key}' found an object, and not a message. Are you sure it's correct?`);
         this.name = 'NotMessageError';
     }
 }
 
+// double boooooo
 class MessageNotFoundError extends Error {
-    constructor(message) {
-        super(message);
+    constructor(key) {
+        super(`Message not found for key '${key}', and no default message was provided.`);
         this.name = 'MessageNotFoundError';
     }
 }
 
-const makeUseT = () => {
-    let messageAsts = {};
+let messageAstCache = {};
 
-    const useT = props => {
+export const useT = userProps => {
+    const doHook = props => {
         let messages;
 
-        // for reference equality checking
+        // for reference equality checking below
         const defaultT = (key, values, defaultMsg) => {
             const lang = navigator.languages[0];
             let msg;
 
-            if (messageAsts[key]) msg = new IntlMessageFormat(messageAsts[key], lang);
+            // figure out our msg situation
+            if (messageAstCache[key]) msg = new IntlMessageFormat(messageAstCache[key], lang);
             else {
                 const maybeMsg = get(messages, key, defaultMsg);
 
-                if (typeof maybeMsg === 'object')
-                    throw new NotMessageError(`Key '${key}' found an object, and not a message. Are you sure it's correct?`);
+                if (isObject(maybeMsg))
+                    throw new NotMessageError(key);
                 else if (!maybeMsg)
-                    throw new MessageNotFoundError(`Message not found for key '${key}', and no default message was provided.`);
+                    throw new MessageNotFoundError(key);
 
                 msg = new IntlMessageFormat(maybeMsg, lang);
-                messageAsts[key] = msg.getAst();
+                messageAstCache[key] = msg.getAst();
             }
 
             return msg.format(values);
         };
 
-        const { $t } = useSelector(s => {
+        const [, nextProps] = useSelector(s => {
             messages = s.messages;
-            return {
+            return [
                 messages,
-                $t: props.$t || defaultT
-            };
-        }, (nextT, prevT) => {
-            if (!shallowEqual(nextT, prevT)) {
-                messageAsts = {};
+                { $t: defaultT, ...props }
+            ];
+        }, ([nextMessages, nextProps], [prevMessages, prevProps]) => {
+            // compare the old messages to the new messages, and
+            // the old $t to the new $t (in case of prop override)
+            if (!Object.is(nextMessages, prevMessages) ||
+                !Object.is(nextProps.$t, prevProps.$t)) {
+                messageAstCache = {};
                 return false;
             }
 
             return true;
         });
 
-        return $t;
+        return Object.freeze(nextProps);
     };
 
-    return useT;
+    // curried for composition
+    return userProps ? doHook(userProps) : doHook;
 };
-
-export const useT = makeUseT();

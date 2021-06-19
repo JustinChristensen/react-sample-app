@@ -1,33 +1,37 @@
 import { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { actions } from '../reducers';
-import { usePropsOrState } from '../hooks/usePropsOrState.js';
-import EmployeeTable from './EmployeeTable.jsx';
-import EmployeeFields from './EmployeeFields';
-import { useT } from '../hooks/useT';
+import { usePropsOrState, useT } from '../hooks';
+import { EmployeeTable } from './EmployeeTable.jsx';
+import { EmployeeFields } from './EmployeeFields.jsx';
+import { compose } from '../utils/fn.js';
 
-export const EmployeeForm = _props => {
-    const props = usePropsOrState(_props, (s, dispatch) => ({
-        onEmployeeFormSubmit: e => {
-            e.preventDefault();
+export const defaultOnEmployeeFormSubmit = e => {
+    e.preventDefault();
 
-            const form = e.target;
+    const form = e.target;
 
-            dispatch(actions.ADD_EMPLOYEE({
-                firstName: form.firstName.value,
-                lastName: form.lastName.value,
-                email: form.email.value,
-                department: form.department.value
-            }));
-
-            form.reset();
-        }
+    e.$dispatch(actions.ADD_EMPLOYEE({
+        firstName: form.firstName.value,
+        lastName: form.lastName.value,
+        email: form.email.value,
+        department: form.department.value
     }));
 
-    const $t = useT(props);
+    form.reset();
+};
+
+export const EmployeeForm = props => {
+    const {
+        $t,
+        onEmployeeFormSubmit
+    } = compose(
+        usePropsOrState(s => ({ onEmployeeFormSubmit: defaultOnEmployeeFormSubmit })),
+        useT
+    )(props);
 
     return (
-        <form className="row mb-4" onSubmit={props.onEmployeeFormSubmit}>
+        <form className="row mb-4" onSubmit={onEmployeeFormSubmit}>
             <EmployeeFields fieldClasses="col" />
 
             <div className="col d-flex justify-content-center">
@@ -40,6 +44,7 @@ export const EmployeeForm = _props => {
 };
 
 EmployeeForm.propTypes = {
+    $t: PropTypes.func,
     onEmployeeFormSubmit: PropTypes.func
 };
 
@@ -49,5 +54,3 @@ export const EmployeeManager = () => (
         <EmployeeTable />
     </Fragment>
 );
-
-export default EmployeeManager;

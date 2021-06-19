@@ -24,6 +24,15 @@ const loaders = () => ([
     {
         test: /\.(woff|woff2|eot|ttf|otf)$/i,
         type: 'asset/resource',
+    },
+    {
+        test: /\.svg$/i,
+        type: 'asset/inline',
+    },
+    {
+        test: /\/sw\.js/,
+        type: 'asset/resource',
+        generator: { filename: 'sw.js' }
     }
 ]);
 
@@ -61,7 +70,9 @@ module.exports = {
         new HtmlPlugin({ title }),
         new MiniCssExtractPlugin({ filename: 'main.css' }),
         new CopyPlugin({
-            patterns: [{ from: 'messages', to: 'messages' }]
+            patterns: [
+                { from: 'messages', to: 'messages' }
+            ]
         })
     ]
 };

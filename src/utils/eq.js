@@ -1,1 +1,5 @@
-export const lengthEq = (a1, a2) => a1.length === a2.length;
+export const isFunction = o => typeof o === 'function';
+export const isObject = o => typeof o === 'object';
+export const isArray = o => Array.isArray(o);
+
+

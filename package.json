@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "build": "webpack",
-    "lint": "eslint src",
+    "lint": "eslint --ext .jsx,.js src",
     "start": "webpack serve",
     "clean": "rm -rf dist"
   },
@@ -23,6 +23,7 @@
     "css-minimizer-webpack-plugin": "^3.0.1",
     "eslint": "^7.28.0",
     "eslint-plugin-react": "^7.24.0",
+    "flag-icon-css": "^3.5.0",
     "html-webpack-plugin": "^5.3.1",
     "immer": "^9.0.3",
     "intl-messageformat": "^9.6.18",

@@ -1,23 +1,25 @@
 import PropTypes from 'prop-types';
-import { shallowEqual } from 'react-redux';
 import { actions } from '../reducers';
-import { usePropsOrState } from '../hooks/usePropsOrState.js';
-import { lengthEq } from '../utils/eq.js';
-import EmployeeFields from './EmployeeFields.jsx';
-import { useT } from '../hooks/useT.js';
+import { useT, usePropsOrState } from '../hooks';
+import { EmployeeFields } from './EmployeeFields.jsx';
+import { compose } from '../utils/fn.js';
 
-const EmployeeTable = _props => {
-    const props = usePropsOrState(_props, (s, dispatch) => ({
-        employees: s.page.employees,
-        // TODO: think about how this breaks reference equality checking below
-        //      or whether we even care about re-rendering if the handler function changes
-        onEmployeeDeleteClick: e => {
-            dispatch(actions.REMOVE_EMPLOYEE(Number(e.target.dataset.id)));
-        }
-    }), (nextProps, prevProps) =>
-        shallowEqual(nextProps, prevProps) && lengthEq(nextProps.employees, prevProps.employees));
+export const defaultOnEmployeeDeleteClick = e => {
+    e.$dispatch(actions.REMOVE_EMPLOYEE(Number(e.target.dataset.id)));
+};
 
-    const $t = useT(props);
+export const EmployeeTable = props => {
+    const {
+        $t,
+        employees,
+        onEmployeeDeleteClick
+    } = compose(
+        usePropsOrState(s => ({
+            employees: s.page.employees,
+            onEmployeeDeleteClick: defaultOnEmployeeDeleteClick
+        })),
+        useT
+    )(props);
 
     return (
         <div className="row mb-4">
@@ -34,13 +36,13 @@ const EmployeeTable = _props => {
                         </tr>
                     </thead>
                     <tbody>
-                        {props.employees.map(employee =>
+                        {employees.map(employee =>
                             <tr key={employee.id}>
-                                <EmployeeFields employee={employee} plainText fieldTag="td" />
+                                <EmployeeFields employee={employee} fieldTag="td" />
 
                                 <td>
                                     <button className="btn btn-link py-0 px-2 mt-1 text-decoration-none" title={$t('employeeTable.actions.deleteTitle')}
-                                        data-id={employee.id} onClick={props.onEmployeeDeleteClick}>
+                                        data-id={employee.id} onClick={onEmployeeDeleteClick}>
                                         {$t('employeeTable.actions.delete')}
                                     </button>
                                 </td>
@@ -54,8 +56,8 @@ const EmployeeTable = _props => {
 };
 
 EmployeeTable.propTypes = {
+    $t: PropTypes.func,
     employees: PropTypes.array,
     onEmployeeDeleteClick: PropTypes.func
 };
 
-export default EmployeeTable;

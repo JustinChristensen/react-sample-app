@@ -1,6 +1,12 @@
 {
     "header": {
-        "heading": "Resource Manager 9000"
+        "heading": "Resource Manager 9000",
+        "profileMenu": {
+            "hoverText": "Select profile"
+        },
+        "localeMenu": {
+            "hoverText": "Select locale"
+        }
     },
     "employeeForm": {
         "hiddenLabels": {
