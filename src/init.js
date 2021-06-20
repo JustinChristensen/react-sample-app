@@ -4,20 +4,11 @@ import { Provider } from 'react-redux';
 import { createLogger } from 'redux-logger';
 import { composeWithDevTools } from 'redux-devtools-extension';
 import reducer, { actions } from './reducers';
-import { env } from './utils/env.js';
+import { env, sitePath } from './utils/env.js';
 import App from './components/App.jsx';
-import worker from './sw.js';
 import { setLocale } from './lang.js';
 
 export const STORAGE_KEY = 'RM9000';
-
-export const registerServiceWorker = (app = {}) => new Promise((resolve, reject) => {
-    navigator.serviceWorker.register(worker).then(reg => {
-        reg.update();
-        app.sw = reg;
-        resolve(app);
-    }, err => (app.initError = err, reject(app)));
-});
 
 export const fetchMessages = (app = {}) => new Promise((resolve, reject) => {
     const store = app.store;
@@ -78,7 +69,7 @@ export const loadProfiles = (app = {}) => new Promise((resolve, reject) => {
     const { profiles } = store.getState();
     if (profiles) return resolve(app);
 
-    fetch('/api/profiles').then(resp => {
+    fetch(`${sitePath}/profiles.json`).then(resp => {
         if (!resp.ok) {
             app.initError = new Error('Failed to load profiles.');
             return reject(app);
@@ -111,7 +102,6 @@ export const exposeApp = (app = {}) => new Promise(resolve => {
 
 export default (app = {}) =>
     exposeApp(app)
-        .then(registerServiceWorker)
         .then(createStore)
         .then(subscribeToUpdates)
         .then(loadProfiles)

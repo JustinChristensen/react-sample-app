@@ -28,11 +28,6 @@ const loaders = () => ([
     {
         test: /\.svg$/i,
         type: 'asset/inline',
-    },
-    {
-        test: /\/sw\.js/,
-        type: 'asset/resource',
-        generator: { filename: 'sw.js' }
     }
 ]);
 
@@ -71,7 +66,8 @@ module.exports = {
         new MiniCssExtractPlugin({ filename: 'main.css' }),
         new CopyPlugin({
             patterns: [
-                { from: 'messages', to: 'messages' }
+                { from: 'messages', to: 'messages' },
+                { from: 'profiles.json', to: 'profiles.json' }
             ]
         })
     ]
