@@ -4,10 +4,10 @@ import { compose } from '../utils/fn.js';
 import { actions } from '../reducers';
 import { setLocale } from '../lang.js';
 
-export const defaultOnDropdownToggleClick = e => {
-    const firstItem = e.currentTarget.nextElementSibling.querySelector('.dropdown-item');
-    firstItem.focus();
-};
+// export const defaultOnDropdownToggleClick = e => {
+//     const firstItem = e.currentTarget.nextElementSibling.querySelector('.dropdown-item');
+//     firstItem.focus();
+// };
 
 export const defaultOnDropdownMenuKeyUp = e => {
     const maybeFocusItem = el => el && el.querySelector('.dropdown-item').focus();
@@ -29,7 +29,6 @@ export const ProfileMenu = props => {
         profiles,
         selectedProfile,
         onSelectProfile,
-        onDropdownToggleClick,
         onDropdownMenuKeyUp
     } = compose(
         useUid,
@@ -38,7 +37,6 @@ export const ProfileMenu = props => {
             profiles: s.profiles,
             selectedProfile: s.selectedProfile,
             onSelectProfile: defaultOnSelectProfile,
-            onDropdownToggleClick: defaultOnDropdownToggleClick,
             onDropdownMenuKeyUp: defaultOnDropdownMenuKeyUp
         }))
     )(props);
@@ -49,8 +47,7 @@ export const ProfileMenu = props => {
 
     return (
         <div className="header-menu dropdown d-inline-block" title={$t('header.profileMenu.hoverText')}>
-            <button className={buttonClasses('selected-profile dropdown-toggle')} type="button" id={menuId}
-                onClick={onDropdownToggleClick}>
+            <button className={buttonClasses('selected-profile dropdown-toggle')} type="button" id={menuId}>
                 <i className="bi bi-person-circle"></i>
                 <em className="ms-2 fst-normal">{selectedProfile.name}</em>
             </button>
@@ -90,7 +87,6 @@ export const LocaleMenu = props => {
         availableLocales,
         selectedLocale,
         onSelectLocale,
-        onDropdownToggleClick,
         onDropdownMenuKeyUp
     } = compose(
         useUid,
@@ -99,7 +95,6 @@ export const LocaleMenu = props => {
             availableLocales: s.availableLocales,
             selectedLocale: s.selectedProfile.locale,
             onSelectLocale: defaultOnSelectLocale,
-            onDropdownToggleClick: defaultOnDropdownToggleClick,
             onDropdownMenuKeyUp: defaultOnDropdownMenuKeyUp
         }))
     )(props);
@@ -111,8 +106,7 @@ export const LocaleMenu = props => {
 
     return (
         <div className="header-menu dropdown d-inline-block" title={$t('header.localeMenu.hoverText')}>
-            <button className={buttonClasses('selected-language dropdown-toggle')} type="button" id={menuId}
-                onClick={onDropdownToggleClick}>
+            <button className={buttonClasses('selected-language dropdown-toggle')} type="button" id={menuId}>
                 <span className={flagClasses(selectedLocale)}></span>
             </button>
             <ul className="dropdown-menu dropdown-menu-dark py-0 start-0 end-0" aria-labelledby={menuId} onKeyUp={onDropdownMenuKeyUp}>

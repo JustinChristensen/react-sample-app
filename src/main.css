@@ -33,6 +33,10 @@
     height: 0;
 }
 
-.header-menu .dropdown-menu:focus-within {
+/* .header-menu .dropdown-menu:focus-within {
+    height: auto;
+} */
+
+.header-menu:focus-within .dropdown-menu {
     height: auto;
 }
