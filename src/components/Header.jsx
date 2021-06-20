@@ -10,10 +10,10 @@ export const defaultOnDropdownToggleClick = e => {
 };
 
 export const defaultOnDropdownMenuKeyUp = e => {
-    const maybeFocusProfile = el => el && el.querySelector('.dropdown-item').focus();
+    const maybeFocusItem = el => el && el.querySelector('.dropdown-item').focus();
     const li = e.target.closest('li');
-    if (e.key === 'ArrowUp') maybeFocusProfile(li.previousElementSibling);
-    else if (e.key === 'ArrowDown') maybeFocusProfile(li.nextElementSibling);
+    if (e.key === 'ArrowUp') maybeFocusItem(li.previousElementSibling);
+    else if (e.key === 'ArrowDown') maybeFocusItem(li.nextElementSibling);
 };
 
 export const defaultOnSelectProfile = e => {
