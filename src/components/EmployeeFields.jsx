@@ -43,7 +43,7 @@ export const EmployeeFields = props => {
         useUid,
         usePropsOrState(s => ({
             employee: {},
-            departments: s.page.departments,
+            departments: s.departments,
             fieldTag: 'div',
             onEmployeeFieldChange: e => (e.$employee = employee, defaultOnEmployeeFieldChange(e)),
             onEmployeeFieldBlur: defaultOnEmployeeFieldBlur,

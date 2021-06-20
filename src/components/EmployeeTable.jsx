@@ -15,7 +15,7 @@ export const EmployeeTable = props => {
         onEmployeeDeleteClick
     } = compose(
         usePropsOrState(s => ({
-            employees: s.page.employees,
+            employees: s.employees,
             onEmployeeDeleteClick: defaultOnEmployeeDeleteClick
         })),
         useT

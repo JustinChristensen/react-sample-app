@@ -26,22 +26,20 @@ export const createStore = (app = {}) => new Promise(resolve => {
         middleware.push(createLogger());
     }
 
-    const storageState = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    const storageState = JSON.parse(sessionStorage.getItem(STORAGE_KEY));
     const initialState =  storageState || {
         availableLocales: [
             'us',
             'fr'
         ],
-        page: {
-            lastEmployeeId: 1314700,
-            employees: [],
-            departments: [
-                'Information Technology',
-                'Maintenance',
-                'Human Resources',
-                'Business Development'
-            ]
-        }
+        lastEmployeeId: 1314700,
+        employees: [],
+        departments: [
+            'Information Technology',
+            'Maintenance',
+            'Human Resources',
+            'Business Development'
+        ]
     };
 
     app.actions = actions;
@@ -57,7 +55,7 @@ export const subscribeToUpdates = (app = {}) => new Promise(resolve => {
     store.subscribe(() => {
         const storedState = { ...store.getState() };
         storedState.messages = undefined;
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(storedState));
+        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(storedState));
     });
 
     resolve(app);
