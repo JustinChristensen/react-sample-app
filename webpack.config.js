@@ -4,7 +4,7 @@ const CopyPlugin = require('copy-webpack-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
-const title = process.env.TITLE || 'React Test';
+const title = process.env.TITLE || 'Resource Manager 9000';
 const env = process.env.NODE_ENV || 'development';
 const host = process.env.HOST || 'localhost';
 const port = Number(process.env.PORT) || 3000;
