@@ -1,0 +1,43 @@
+{
+    "header": {
+        "heading": "Resource Manager 9000",
+        "profileMenu": {
+            "hoverText": "Select profile"
+        },
+        "localeMenu": {
+            "hoverText": "Select locale"
+        }
+    },
+    "employeeForm": {
+        "hiddenLabels": {
+            "empId": "Employee ID",
+            "firstName": "First Name",
+            "lastName": "Last Name",
+            "email": "Email",
+            "department": "Department"
+        },
+        "placeholders": {
+            "firstName": "John",
+            "lastName": "Doe",
+            "email": "john.doe@corp.com"
+        },
+        "actions": {
+            "add": "Add Employee",
+            "addTitle": "Add Employee"
+        }
+    },
+    "employeeTable": {
+        "headings": {
+            "empId": "Employee ID",
+            "firstName": "First Name",
+            "lastName": "Last Name",
+            "email": "Email",
+            "department": "Department",
+            "actions": "Actions"
+        },
+        "actions": {
+            "delete": "Delete",
+            "deleteTitle": "Delete"
+        }
+    }
+}
