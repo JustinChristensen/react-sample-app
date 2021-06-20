@@ -36,7 +36,7 @@ export const setLocale = (getState, dispatch, locale) => new Promise((resolve, r
 
             return resp.json();
         }).then(messages => {
-            dispatch(actions.SET_MESSAGES({ lang: profileLang, messages}));
+            dispatch(actions.SET_MESSAGES({ lang: profileLang, messages }));
             resolve();
         });
     } else resolve();

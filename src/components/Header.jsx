@@ -50,7 +50,7 @@ export const ProfileMenu = props => {
     return (
         <div className="header-menu dropdown d-inline-block" title={$t('header.profileMenu.hoverText')}>
             <button className={buttonClasses('selected-profile dropdown-toggle')} type="button" id={menuId}
-                onClick={onDropdownToggleClick} onFocus={onDropdownToggleClick}>
+                onClick={onDropdownToggleClick}>
                 <i className="bi bi-person-circle"></i>
                 <em className="ms-2 fst-normal">{selectedProfile.name}</em>
             </button>
@@ -112,7 +112,7 @@ export const LocaleMenu = props => {
     return (
         <div className="header-menu dropdown d-inline-block" title={$t('header.localeMenu.hoverText')}>
             <button className={buttonClasses('selected-language dropdown-toggle')} type="button" id={menuId}
-                onClick={onDropdownToggleClick} onFocus={onDropdownToggleClick}>
+                onClick={onDropdownToggleClick}>
                 <span className={flagClasses(selectedLocale)}></span>
             </button>
             <ul className="dropdown-menu dropdown-menu-dark py-0 start-0 end-0" aria-labelledby={menuId} onKeyUp={onDropdownMenuKeyUp}>
