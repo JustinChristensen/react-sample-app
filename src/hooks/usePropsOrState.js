@@ -1,6 +1,5 @@
 import { shallowEqual, useStore, useSelector } from 'react-redux';
 import { isFunction, isObject } from '../utils/eq.js';
-import { identity } from '../utils/fn.js';
 
 // the below uses useSelector from react-redux to do the heavy lifting, because I don't
 // want to have to reimplement their subscription tree stuff from scratch just yet
