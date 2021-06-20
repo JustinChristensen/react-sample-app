@@ -35,7 +35,7 @@ export const propsEqual = (nextProps, prevProps) => {
     });
 };
 
-export const usePropsOrState = (selector = identity, userEqualFn = () => true, userProps) => {
+export const usePropsOrState = (selector = () => undefined, userEqualFn = () => true, userProps) => {
     const doHook = props => {
         const store = useStore();
         const nextProps = useSelector(s => {
@@ -44,9 +44,7 @@ export const usePropsOrState = (selector = identity, userEqualFn = () => true, u
             // mark functions returned from the selector
             // these will always compare equal for rendering's sake, even though the
             // function references will potentially differ
-            // TODO: think about whether there's ever a justification for selected functions
-            //      TO differ. I.e. should the user expect updating an event handler to trigger a re-render?
-            Object.values(stateProps).forEach(v => {
+            stateProps && Object.values(stateProps).forEach(v => {
                 if (isFunction(v))
                     v[SELECTED_FN] = true;
             });
