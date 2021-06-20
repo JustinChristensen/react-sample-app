@@ -37,7 +37,7 @@ const loaders = () => ([
 ]);
 
 const devServer = () => ({
-    contentBase: './dist',
+    contentBase: './docs',
     host, port,
     clientLogLevel: 'silent'
 });
@@ -58,7 +58,7 @@ module.exports = {
         ]
     },
     output: {
-        path: resolve('dist'),
+        path: resolve('docs'),
         filename: 'main.js'
     },
     module: {
