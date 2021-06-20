@@ -11,7 +11,7 @@ export const defaultOnEmployeeFieldChange = e => {
     input.reportValidity();
 
     e.$dispatch(actions.UPDATE_EMPLOYEE({
-        id: e.$employee.id,
+        id: e.employee.id,
         [input.name]: input.value
     }));
 };
@@ -45,7 +45,7 @@ export const EmployeeFields = props => {
             employee: {},
             departments: s.departments,
             fieldTag: 'div',
-            onEmployeeFieldChange: e => (e.$employee = employee, defaultOnEmployeeFieldChange(e)),
+            onEmployeeFieldChange: e => (e.employee = employee, defaultOnEmployeeFieldChange(e)),
             onEmployeeFieldBlur: defaultOnEmployeeFieldBlur,
             onEmployeeFieldKeyUp: defaultEmployeeFieldKeyup
         })),

@@ -19,6 +19,7 @@ export const defaultOnEmployeeFormSubmit = e => {
     }));
 
     form.reset();
+    form.firstName.focus();
 };
 
 export const EmployeeForm = props => {
