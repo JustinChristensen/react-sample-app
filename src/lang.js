@@ -1,5 +1,6 @@
 import { actions } from './reducers';
-import { invert } from './utils/object';
+import { invert } from './utils/object.js';
+import { sitePath } from './utils/env.js';
 
 // yeah, yeah, but this is a demo after all
 const localeLangMap = {
@@ -29,7 +30,7 @@ export const setLocale = (getState, dispatch, locale) => new Promise((resolve, r
     const profileLang = localeToLang(state.selectedProfile.locale);
 
     if (!messages || !messages[profileLang]) {
-        fetch(`/messages/${profileLang}.json`).then(resp => {
+        fetch(`${sitePath}/messages/${profileLang}.json`).then(resp => {
             if (!resp.ok)
                 return reject(new Error(`Failed to load messages for lang ${profileLang}`));
 

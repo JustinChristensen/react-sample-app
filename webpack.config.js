@@ -47,7 +47,7 @@ module.exports = {
     target: 'web', // https://github.com/webpack/webpack-dev-server/issues/2758
     context: resolve('src'),
     entry: '.',
-    devtool: devOrNot('inline-source-map', 'source-map'),
+    devtool: devOrNot('inline-source-map', undefined),
     resolve: {
         extensions: ['.js', '.jsx', '.json']
     },

@@ -1,6 +1,6 @@
 @import 'bootstrap/dist/css/bootstrap.css';
 @import 'bootstrap-icons/font/bootstrap-icons.css';
-@import 'flag-icon-css/css/flag-icon.css';
+@import './flag-icon-css/flag-icon.css';
 
 .header {
     background-color: var(--bs-teal);
