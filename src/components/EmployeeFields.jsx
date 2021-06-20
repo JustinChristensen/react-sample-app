@@ -18,7 +18,7 @@ export const defaultOnEmployeeFieldChange = e => {
 
 export const defaultOnEmployeeFieldBlur = e => {
     if (!e.target.reportValidity())
-        return e.preventDefault();
+        e.preventDefault();
 };
 
 export const defaultEmployeeFieldKeyup = e => {
