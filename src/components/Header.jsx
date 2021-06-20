@@ -4,11 +4,6 @@ import { compose } from '../utils/fn.js';
 import { actions } from '../reducers';
 import { setLocale } from '../lang.js';
 
-// export const defaultOnDropdownToggleClick = e => {
-//     const firstItem = e.currentTarget.nextElementSibling.querySelector('.dropdown-item');
-//     firstItem.focus();
-// };
-
 export const defaultOnDropdownMenuKeyUp = e => {
     const maybeFocusItem = el => el && el.querySelector('.dropdown-item').focus();
     const li = e.target.closest('li');
@@ -71,7 +66,6 @@ ProfileMenu.propTypes = {
     profiles: PropTypes.array,
     selectedProfile: PropTypes.object,
     onSelectProfile: PropTypes.func,
-    onDropdownToggleClick: PropTypes.func,
     onDropdownMenuKeyUp: PropTypes.func
 };
 
@@ -128,7 +122,6 @@ LocaleMenu.propTypes = {
     selectedLocale: PropTypes.string,
     availableLocales: PropTypes.array,
     onSelectLocale: PropTypes.func,
-    onDropdownToggleClick: PropTypes.func,
     onDropdownMenuKeyUp: PropTypes.func
 };
 
