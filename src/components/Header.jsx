@@ -2,6 +2,7 @@ import PropTypes from 'prop-types';
 import { usePropsOrState, useT, useUid } from '../hooks';
 import { compose } from '../utils/fn.js';
 import { actions } from '../reducers';
+import { setLocale } from '../lang.js';
 
 export const defaultOnDropdownToggleClick = e => {
     const firstItem = e.currentTarget.nextElementSibling.querySelector('.dropdown-item');
@@ -18,6 +19,7 @@ export const defaultOnDropdownMenuKeyUp = e => {
 export const defaultOnSelectProfile = e => {
     e.preventDefault();
     e.$dispatch(actions.SELECT_PROFILE(Number(e.currentTarget.dataset.id)));
+    setLocale(e.$getState, e.$dispatch);
 };
 
 export const ProfileMenu = props => {
@@ -67,6 +69,7 @@ export const ProfileMenu = props => {
 };
 
 ProfileMenu.propTypes = {
+    $t: PropTypes.func,
     $uid: PropTypes.number,
     profiles: PropTypes.array,
     selectedProfile: PropTypes.object,
@@ -77,11 +80,7 @@ ProfileMenu.propTypes = {
 
 export const defaultOnSelectLocale = e => {
     e.preventDefault();
-    e.$dispatch(actions.SET_LOCALE(e.currentTarget.dataset.loc));
-
-    // TODO: selectedProfile.locale different from selectedMessages
-    // when in SET_LOCALE, if messages for that locale are loaded, then set selectedMessages otherwise,
-    // perform a fetch here, and in SET_MESSAGES check if selectedMessages differs from selectedProfile.locale
+    setLocale(e.$getState, e.$dispatch, e.currentTarget.dataset.loc);
 };
 
 export const LocaleMenu = props => {
@@ -130,6 +129,7 @@ export const LocaleMenu = props => {
 };
 
 LocaleMenu.propTypes = {
+    $t: PropTypes.func,
     $uid: PropTypes.number,
     selectedLocale: PropTypes.string,
     availableLocales: PropTypes.array,
@@ -138,7 +138,6 @@ LocaleMenu.propTypes = {
     onDropdownMenuKeyUp: PropTypes.func
 };
 
-
 export const Header = props => {
     const { $t } = useT(props);
 
@@ -146,7 +145,9 @@ export const Header = props => {
         <header className="header container-fluid mb-4">
             <div className="row align-items-center">
                 <div className="col">
-                    <h2 className="my-2">{$t('header.heading')}</h2>
+                    <h2 className="my-2">
+                        <a href="/" className="text-white text-decoration-none">{$t('header.heading')}</a>
+                    </h2>
                 </div>
 
                 <div className="col">

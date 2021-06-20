@@ -1,4 +1,4 @@
-import { shallowEqual, useDispatch, useSelector } from 'react-redux';
+import { shallowEqual, useStore, useSelector } from 'react-redux';
 import { isFunction, isObject } from '../utils/eq.js';
 import { identity } from '../utils/fn.js';
 
@@ -37,7 +37,7 @@ export const propsEqual = (nextProps, prevProps) => {
 
 export const usePropsOrState = (selector = identity, userEqualFn = () => true, userProps) => {
     const doHook = props => {
-        const dispatch = useDispatch();
+        const store = useStore();
         const nextProps = useSelector(s => {
             const stateProps = selector(s);
 
@@ -59,12 +59,12 @@ export const usePropsOrState = (selector = identity, userEqualFn = () => true, u
             Object.keys(nextProps).forEach(key => {
                 let fn;
                 if (isFunction(fn = nextProps[key])) {
-                    // pin dispatch and the current store state
+                    // pin dispatch and the state getter
                     // to the first parameter, which will more often than not be an event
                     const usePropsOrStateWrapper = (maybeE = {}, ...rest) => {
                         if (maybeE?.nativeEvent) {
-                            maybeE.$dispatch = dispatch;
-                            maybeE.$state = s;
+                            maybeE.$dispatch = store.dispatch;
+                            maybeE.$getState = store.getState;
                         }
 
                         return fn(maybeE, ...rest);

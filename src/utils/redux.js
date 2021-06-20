@@ -1,11 +1,13 @@
 import produce from 'immer';
+import { identity } from './fn.js';
 
 // just trying some stuff out, yes I know redux toolkit is a thing
 
 const mappedReducer = () => {
     const newReducer = produce((state, action) => {
         const red = newReducer.reducerMap[action.type];
-        return red ? red(state, action.data, action.type) : state;
+        red && red(state, action.data, action.type);
+        return state;
     });
 
     return newReducer;
@@ -27,7 +29,7 @@ export const reducer = (actionType, reducerFn) => {
     return newReducer;
 };
 
-export const composeReducer = (redf, redg) => {
+export const caseReducer2 = (redf, redg) => {
     const newReducer = mappedReducer();
 
     newReducer.actions = {
@@ -43,4 +45,4 @@ export const composeReducer = (redf, redg) => {
     return newReducer;
 };
 
-export const composeReducers = (...reds) => reds.flat().reduce(composeReducer);
+export const caseReducers = (...reds) => reds.flat().reduce(caseReducer2, identity);

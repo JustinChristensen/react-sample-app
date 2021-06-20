@@ -5,12 +5,12 @@ let uid = 0;
 const profiles = [
     {
         id: uid++,
-        name: 'Randy Bobandy'
-
+        name: 'Arthur Foibles'
     },
     {
         id: uid++,
-        name: 'Arthur Foibles'
+        name: 'Stacy Kerfuffle'
+
     },
     {
         id: uid++,

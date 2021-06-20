@@ -48,7 +48,7 @@ export const useT = userProps => {
         };
 
         const [, nextProps] = useSelector(s => {
-            messages = s.messages;
+            messages = s.messages[s.selectedLang];
             return [
                 messages,
                 { $t: defaultT, ...props }

@@ -1,0 +1,43 @@
+{
+    "header": {
+        "heading": "Gestionnaire de ressources 9000",
+        "profileMenu": {
+            "hoverText": "Choisissez un profil"
+        },
+        "localeMenu": {
+            "hoverText": "Sélectionnez les paramètres régionaux"
+        }
+    },
+    "employeeForm": {
+        "hiddenLabels": {
+            "empId": "Employé ID",
+            "firstName": "Prénom",
+            "lastName": "Nom de famille",
+            "email": "Email",
+            "department": "Département"
+        },
+        "placeholders": {
+            "firstName": "Jean",
+            "lastName": "Dupont",
+            "email": "jean.dupont@corp.com"
+        },
+        "actions": {
+            "add": "Ajouter un employé",
+            "addTitle": "Ajouter un employé"
+        }
+    },
+    "employeeTable": {
+        "headings": {
+            "empId": "Employé ID",
+            "firstName": "Prénom",
+            "lastName": "Nom de famille",
+            "email": "Email",
+            "department": "Département",
+            "actions": "Actions"
+        },
+        "actions": {
+            "delete": "Effacer",
+            "deleteTitle": "Effacer"
+        }
+    }
+}

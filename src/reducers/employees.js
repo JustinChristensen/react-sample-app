@@ -1,24 +1,21 @@
-import { composeReducers, reducer } from '../utils/redux';
+import { caseReducers, reducer } from '../utils/redux';
 
-export const addEmployeeReducer = reducer('ADD_EMPLOYEE', (state, employee) => {
-    state.page.employees ||= [];
-    employee.id = state.page.lastEmployeeId++;
-    state.page.employees.push(employee);
-    return state;
+export const addEmployeeReducer = reducer('ADD_EMPLOYEE', ({ page }, employee) => {
+    page.employees ||= [];
+    employee.id = page.lastEmployeeId++;
+    page.employees.push(employee);
 });
 
-export const updateEmployeeReducer = reducer('UPDATE_EMPLOYEE', (state, updatedEmployee) => {
-    const employee = state.page.employees.find(e => e.id === updatedEmployee.id);
+export const updateEmployeeReducer = reducer('UPDATE_EMPLOYEE', ({ page }, updatedEmployee) => {
+    const employee = page.employees.find(e => e.id === updatedEmployee.id);
     Object.assign(employee, updatedEmployee);
-    return state;
 });
 
-export const removeEmployeeReducer = reducer('REMOVE_EMPLOYEE', (state, id) => {
-    state.page.employees = state.page.employees.filter(e => e.id !== id);
-    return state;
+export const removeEmployeeReducer = reducer('REMOVE_EMPLOYEE', ({ page }, id) => {
+    page.employees = page.employees.filter(e => e.id !== id);
 });
 
-export default composeReducers(
+export default caseReducers(
     addEmployeeReducer,
     updateEmployeeReducer,
     removeEmployeeReducer

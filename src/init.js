@@ -5,8 +5,9 @@ import { createLogger } from 'redux-logger';
 import { composeWithDevTools } from 'redux-devtools-extension';
 import reducer, { actions } from './reducers';
 import { env } from './utils/env.js';
-import App from './components/App';
+import App from './components/App.jsx';
 import worker from './sw.js';
+import { setLocale } from './lang.js';
 
 export const STORAGE_KEY = 'RM9000';
 
@@ -15,48 +16,16 @@ export const registerServiceWorker = (app = {}) => new Promise((resolve, reject)
         reg.update();
         app.sw = reg;
         resolve(app);
-    }, err => {
-        app.initError = err;
-        reject(app);
-    });
+    }, err => (app.initError = err, reject(app)));
 });
 
-// yeah, yeah, but this is a demo after all
-const languageLocaleMap = {
-    en: 'us',
-    fr: 'fr'
-};
-
-const localeLanguageMap = Object.entries(languageLocaleMap)
-    .reduce((o, [k, v]) => (o[v] = k, o), {});
-
-export const fetchMessages = (app = {}) => new Promise(resolve => {
+export const fetchMessages = (app = {}) => new Promise((resolve, reject) => {
     const store = app.store;
 
-    const { selectedProfile } = store.getState();
-
-    const tryFetch = langs => {
-        if (!langs.length) {
-            console.log('messages not found for your locale, falling back to english...');
-            return tryFetch(['en']);
-        }
-
-        const lang = langs.pop();
-        return fetch(`/messages/${lang}.json`).then(resp => {
-            if (!resp.ok) return tryFetch(langs);
-            if (!selectedProfile.locale)
-                store.dispatch(actions.SET_LOCALE(languageLocaleMap[lang]));
-            return resp.json();
-        });
-    };
-
-    tryFetch(selectedProfile.locale ?
-        [localeLanguageMap[selectedProfile.locale]] :
-        [...navigator.languages].reverse()
-    ).then(messages => {
-        app.store.dispatch(actions.SET_MESSAGES(messages));
-        resolve(app);
-    });
+    setLocale(store.getState, store.dispatch).then(
+        () => resolve(app),
+        err => (app.initError = err, reject(app))
+    );
 });
 
 export const createStore = (app = {}) => new Promise(resolve => {
@@ -94,8 +63,11 @@ export const createStore = (app = {}) => new Promise(resolve => {
 export const subscribeToUpdates = (app = {}) => new Promise(resolve => {
     const store = app.store;
 
-    store.subscribe(() =>
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(store.getState())));
+    store.subscribe(() => {
+        const storedState = { ...store.getState() };
+        storedState.messages = undefined;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(storedState));
+    });
 
     resolve(app);
 });
@@ -104,17 +76,17 @@ export const loadProfiles = (app = {}) => new Promise((resolve, reject) => {
     const store = app.store;
 
     const { profiles } = store.getState();
-    if (profiles) resolve(app);
+    if (profiles) return resolve(app);
 
     fetch('/api/profiles').then(resp => {
-        if (!resp.ok) return reject(new Error('Failed to load profiles.'));
+        if (!resp.ok) {
+            app.initError = new Error('Failed to load profiles.');
+            return reject(app);
+        }
         return resp.json();
     }).then(loadedProfiles => {
         store.dispatch(actions.SET_PROFILES(loadedProfiles));
         resolve(app);
-    }).catch(err => {
-        app.initError = err;
-        reject(app);
     });
 });
 
