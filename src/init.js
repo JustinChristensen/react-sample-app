@@ -6,14 +6,17 @@ import { composeWithDevTools } from 'redux-devtools-extension';
 import reducer, { actions } from './reducers';
 import { env, sitePath } from './utils/env.js';
 import App from './components/App.jsx';
-import { setLocale } from './lang.js';
+import { detectBrowserLocale, fetchMissingMessages } from './lang.js';
 
 export const STORAGE_KEY = 'RM9000';
 
 export const fetchMessages = (app = {}) => new Promise((resolve, reject) => {
     const store = app.store;
 
-    setLocale(store.getState, store.dispatch).then(
+    // the user may not have a default locale set, so we set it here
+    store.dispatch(actions.SET_LOCALE({ browserLocale: detectBrowserLocale() }));
+
+    fetchMissingMessages(store.getState, store.dispatch).then(
         () => resolve(app),
         err => (app.initError = err, reject(app))
     );

@@ -19,15 +19,10 @@ export const detectBrowserLocale = () => {
         availableLocales.includes(langToLocale(navLang)))) || availableLocales[0];
 };
 
-export const setLocale = (getState, dispatch, locale) => new Promise((resolve, reject) => {
-    let state = getState();
+export const fetchMissingMessages = (getState, dispatch, locale) => new Promise((resolve, reject) => {
+    const { selectedProfile, messages } = getState();
 
-    if (!locale && !state.selectedProfile.locale) locale = detectBrowserLocale();
-    if (locale) dispatch(actions.SET_LOCALE(locale));
-
-    const { messages } = state = getState();
-
-    const profileLang = localeToLang(state.selectedProfile.locale);
+    const profileLang = localeToLang(selectedProfile.locale);
 
     if (!messages || !messages[profileLang]) {
         fetch(`${sitePath}/messages/${profileLang}.json`).then(resp => {

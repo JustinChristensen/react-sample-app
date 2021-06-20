@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import { usePropsOrState, useT, useUid } from '../hooks';
 import { compose } from '../utils/fn.js';
 import { actions } from '../reducers';
-import { setLocale } from '../lang.js';
+import { detectBrowserLocale, fetchMissingMessages } from '../lang.js';
 
 export const defaultOnDropdownMenuKeyUp = e => {
     const maybeFocusItem = el => el && el.querySelector('.dropdown-item').focus();
@@ -13,8 +13,11 @@ export const defaultOnDropdownMenuKeyUp = e => {
 
 export const defaultOnSelectProfile = e => {
     e.preventDefault();
-    e.$dispatch(actions.SELECT_PROFILE(Number(e.currentTarget.dataset.id)));
-    setLocale(e.$getState, e.$dispatch);
+    e.$dispatch(actions.SELECT_PROFILE({
+        id: Number(e.currentTarget.dataset.id),
+        browserLocale: detectBrowserLocale()
+    }));
+    fetchMissingMessages(e.$getState, e.$dispatch);
 };
 
 export const ProfileMenu = props => {
@@ -71,7 +74,8 @@ ProfileMenu.propTypes = {
 
 export const defaultOnSelectLocale = e => {
     e.preventDefault();
-    setLocale(e.$getState, e.$dispatch, e.currentTarget.dataset.loc);
+    e.$dispatch(actions.SET_LOCALE({ locale: e.currentTarget.dataset.loc }));
+    fetchMissingMessages(e.$getState, e.$dispatch);
 };
 
 export const LocaleMenu = props => {
