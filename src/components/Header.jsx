@@ -3,6 +3,7 @@ import { usePropsOrState, useT, useUid } from '../hooks';
 import { compose } from '../utils/fn.js';
 import { actions } from '../reducers';
 import { detectBrowserLocale, fetchMissingMessages } from '../lang.js';
+import { sitePath } from '../utils/env.js';
 
 export const defaultOnDropdownMenuKeyUp = e => {
     const maybeFocusItem = el => el && el.querySelector('.dropdown-item').focus();
@@ -137,7 +138,7 @@ export const Header = props => {
             <div className="row align-items-center">
                 <div className="col">
                     <h2 className="my-2">
-                        <a href="/" className="text-white text-decoration-none">{$t('header.heading')}</a>
+                        <a href={sitePath} className="text-white text-decoration-none">{$t('header.heading')}</a>
                     </h2>
                 </div>
 
