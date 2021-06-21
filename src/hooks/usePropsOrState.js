@@ -34,7 +34,7 @@ export const propsEqual = (nextProps, prevProps) => {
     });
 };
 
-export const usePropsOrState = (selector = () => undefined, userEqualFn = () => true, userProps) => {
+export const usePropsOrState = (selector = () => undefined, userEqualFn = propsEqual, userProps) => {
     const doHook = props => {
         const store = useStore();
         const nextProps = useSelector(s => {
@@ -74,13 +74,7 @@ export const usePropsOrState = (selector = () => undefined, userEqualFn = () => 
             });
 
             return Object.freeze(nextProps);
-
-            // we'll assume we always want our equality checks in propEquals, but give the user
-            // the opportunity to go a little further if they need deep equality checking
-            // this is primarily done because the function comparison logic is a bit specialized,
-            // and we don't want to force the user to have to potentially miss the comparison
-        }, (nextProps, prevProps) => propsEqual(nextProps, prevProps) && userEqualFn(nextProps, prevProps));
-
+        }, userEqualFn);
 
         return nextProps;
     };
