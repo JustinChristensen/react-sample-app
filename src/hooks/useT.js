@@ -1,10 +1,9 @@
 import IntlMessageFormat from 'intl-messageformat';
-import { useSelector } from '../utils/redux-context.jsx';
+import { useSelector } from './useSelector.js';
 import { get } from '../utils/object.js';
 import { isObject } from '../utils/eq.js';
 import { useRef } from 'react';
 
-// boooooo
 class NotMessageError extends Error {
     constructor(key) {
         super(`Key '${key}' found an object, and not a message. Are you sure it's correct?`);
@@ -12,7 +11,6 @@ class NotMessageError extends Error {
     }
 }
 
-// double boooooo
 class MessageNotFoundError extends Error {
     constructor(key) {
         super(`Message not found for key '${key}', and no default message was provided.`);

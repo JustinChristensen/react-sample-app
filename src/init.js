@@ -1,6 +1,6 @@
 import { createStore as reduxStore, applyMiddleware } from 'redux';
 import { render } from 'react-dom';
-import { Provider } from './utils/redux-context.jsx';
+import { Provider } from './components/ReduxContext.jsx';
 import { createLogger } from 'redux-logger';
 import { composeWithDevTools } from 'redux-devtools-extension';
 import reducer, { actions } from './reducers';

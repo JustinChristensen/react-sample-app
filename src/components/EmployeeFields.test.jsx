@@ -1,21 +1,28 @@
 import { EmployeeFields } from './EmployeeFields.jsx';
-import { renderIntoDocument } from 'react-dom/test-utils'
+import { identity } from '../utils/fn.js';
+import { render } from 'react-dom';
+
+const renderIntoDiv = elem => {
+    const div = document.createElement('div');
+    render(elem, div);
+    return div;
+};
 
 describe(EmployeeFields.name, () => {
 
     describe('without employee', () => {
 
-        let doc;
+        let container;
 
         beforeAll(() => {
-            doc = renderIntoDocument(
-                <EmployeeFields />
+            container = renderIntoDiv(
+                <EmployeeFields $t={identity} />
             );
         });
 
         test('renders empty fields and no id field', () => {
-            const inputs = doc.querySelectorAll('input'),
-                select = doc.querySelector('select');
+            const inputs = container.querySelectorAll('input'),
+                select = container.querySelector('select');
             expect(inputs.length).toBe(3);
             expect(select).not.toBeNull();
         });

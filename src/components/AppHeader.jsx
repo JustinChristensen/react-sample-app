@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { usePropsOrState, useT, useUid } from '../hooks';
+import { usePropsSelector, useT, useUid, useHandlers } from '../hooks';
 import { compose, identity } from '../utils/fn.js';
 import { actions } from '../reducers';
 import { detectBrowserLocale, fetchMissingMessages } from '../lang.js';
@@ -24,10 +24,12 @@ export const HeaderMenu = props => {
         onDropdownMenuClick,
     } = compose(
         useUid,
-        usePropsOrState(s => ({
+        usePropsSelector(s => ({
             itemIdFn: identity,
+        })),
+        useHandlers({
             onDropdownMenuKeyUp: defaultOnDropdownMenuKeyUp
-        }))
+        })
     )(props);
 
     const unselectedItems = items.filter(p => p.id !== itemIdFn(selectedItem));
@@ -90,14 +92,16 @@ export const AppHeader = props => {
         onSelectProfile
     } = compose(
         useT,
-        usePropsOrState(s => ({
+        usePropsSelector(s => ({
             availableLocales: s.availableLocales,
             selectedLocale: s.selectedProfile.locale,
-            onSelectLocale: defaultOnSelectLocale,
             profiles: s.profiles,
             selectedProfile: s.selectedProfile,
+        })),
+        useHandlers({
+            onSelectLocale: defaultOnSelectLocale,
             onSelectProfile: defaultOnSelectProfile
-        }))
+        })
     )(props);
 
     const flagClasses = loc => `flag-icon flag-icon-${loc}`;

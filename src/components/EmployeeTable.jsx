@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import { actions } from '../reducers';
-import { useT, usePropsOrState } from '../hooks';
+import { useT, usePropsSelector, useHandlers } from '../hooks';
 import { EmployeeFields } from './EmployeeFields.jsx';
 import { compose } from '../utils/fn.js';
 
@@ -14,11 +14,11 @@ export const EmployeeTable = props => {
         employees,
         onEmployeeDeleteClick
     } = compose(
-        usePropsOrState(s => ({
-            employees: s.employees,
+        useT,
+        usePropsSelector(s => ({ employees: s.employees })),
+        useHandlers({
             onEmployeeDeleteClick: defaultOnEmployeeDeleteClick
-        })),
-        useT
+        })
     )(props);
 
     return (

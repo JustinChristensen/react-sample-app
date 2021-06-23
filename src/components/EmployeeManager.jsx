@@ -1,6 +1,6 @@
 import PropTypes from 'prop-types';
 import { actions } from '../reducers';
-import { usePropsOrState, useT } from '../hooks';
+import { useHandlers, useT } from '../hooks';
 import { EmployeeTable } from './EmployeeTable.jsx';
 import { EmployeeFields } from './EmployeeFields.jsx';
 import { compose } from '../utils/fn.js';
@@ -26,8 +26,8 @@ export const EmployeeForm = props => {
         $t,
         onEmployeeFormSubmit
     } = compose(
-        usePropsOrState(s => ({ onEmployeeFormSubmit: defaultOnEmployeeFormSubmit })),
-        useT
+        useT,
+        useHandlers({ onEmployeeFormSubmit: defaultOnEmployeeFormSubmit })
     )(props);
 
     return (

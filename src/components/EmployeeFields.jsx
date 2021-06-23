@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import { suffixWith } from '../utils/string.js';
 import { compose } from '../utils/fn.js';
-import { useUid, usePropsOrState, useT } from '../hooks';
+import { useUid, usePropsSelector, useT, useHandlers, useDefaults } from '../hooks';
 import { actions } from '../reducers/index.js';
 
 export const defaultOnEmployeeFieldChange = e => {
@@ -39,16 +39,21 @@ export const EmployeeFields = props => {
         onEmployeeFieldBlur,
         onEmployeeFieldKeyUp
     } = compose(
+        useT,
         useUid,
-        usePropsOrState(s => ({
-            employee: {},
+        usePropsSelector(s => ({
             departments: s.departments,
-            fieldTag: 'div',
+        })),
+        useHandlers({
             onEmployeeFieldChange: e => (e.employee = employee, defaultOnEmployeeFieldChange(e)),
             onEmployeeFieldBlur: defaultOnEmployeeFieldBlur,
             onEmployeeFieldKeyUp: defaultEmployeeFieldKeyup
-        })),
-        useT
+        }),
+        useDefaults({
+            departments: [],
+            employee: {},
+            fieldTag: 'div',
+        })
     )(props);
 
     const [idId, fnameId, lnameId, emailId, departmentId] = suffixWith(`-${$uid}`, [
@@ -112,5 +117,6 @@ EmployeeFields.propTypes = {
     fieldTag: PropTypes.string,
     fieldClasses: PropTypes.string,
     onEmployeeFieldChange: PropTypes.func,
-    onEmployeeFieldBlur: PropTypes.func
+    onEmployeeFieldBlur: PropTypes.func,
+    onEmployeeFieldKeyUp: PropTypes.func
 };
