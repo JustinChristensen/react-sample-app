@@ -1,7 +1,8 @@
 import IntlMessageFormat from 'intl-messageformat';
-import { useSelector } from 'react-redux';
+import { useSelector } from '../utils/redux-context.jsx';
 import { get } from '../utils/object.js';
 import { isObject } from '../utils/eq.js';
+import { useRef } from 'react';
 
 // boooooo
 class NotMessageError extends Error {
@@ -23,7 +24,17 @@ let messageAstCache = {};
 
 export const useT = userProps => {
     const doHook = props => {
-        let messages;
+        const lastMessages = useRef();
+
+        // force re-rendering when the messages change
+        useSelector(s => {
+            const messages = s.messages[s.selectedLang];
+
+            if (lastMessages.current !== messages)
+                messageAstCache = {};
+
+            return lastMessages.current = messages;
+        });
 
         // for reference equality checking below
         const defaultT = (key, values, defaultMsg) => {
@@ -33,7 +44,7 @@ export const useT = userProps => {
             // figure out our msg situation
             if (messageAstCache[key]) msg = new IntlMessageFormat(messageAstCache[key], lang);
             else {
-                const maybeMsg = get(messages, key, defaultMsg);
+                const maybeMsg = get(lastMessages.current, key, defaultMsg);
 
                 if (isObject(maybeMsg))
                     throw new NotMessageError(key);
@@ -47,25 +58,7 @@ export const useT = userProps => {
             return msg.format(values);
         };
 
-        const [, nextProps] = useSelector(s => {
-            messages = s.messages[s.selectedLang];
-            return [
-                messages,
-                { $t: defaultT, ...props }
-            ];
-        }, ([nextMessages, nextProps], [prevMessages, prevProps]) => {
-            // compare the old messages to the new messages, and
-            // the old $t to the new $t (in case of prop override)
-            if (!Object.is(nextMessages, prevMessages) ||
-                !Object.is(nextProps.$t, prevProps.$t)) {
-                messageAstCache = {};
-                return false;
-            }
-
-            return true;
-        });
-
-        return Object.freeze(nextProps);
+        return Object.freeze({ $t: defaultT, ...props });
     };
 
     // curried for composition

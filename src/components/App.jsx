@@ -1,15 +1,14 @@
-import { Fragment } from 'react';
 import { EmployeeManager } from './EmployeeManager.jsx';
-import { Header } from './Header.jsx';
+import { AppHeader } from './AppHeader.jsx';
 
 const App = () => (
-    <Fragment>
-        <Header />
+    <>
+        <AppHeader />
 
         <div className="container">
             <EmployeeManager />
         </div>
-    </Fragment>
+    </>
 );
 
 export default App;

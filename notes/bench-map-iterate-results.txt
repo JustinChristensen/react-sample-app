@@ -1,0 +1,26 @@
+map:
+total after iteration: 4950
+total after iteration: 499500
+total after iteration: 49995000
+total after iteration: 4999950000
+total after iteration: 499999500000
+{
+  '100': 'iterated 100 elements in 48.71797561645508 microseconds',
+  '1000': 'iterated 1000 elements in 61.048030853271484 microseconds',
+  '10000': 'iterated 10000 elements in 978.2609939575195 microseconds',
+  '100000': 'iterated 100000 elements in 3039.775013923645 microseconds',
+  '1000000': 'iterated 1000000 elements in 44283.592998981476 microseconds'
+}
+linked list:
+total after iteration: 4950
+total after iteration: 499500
+total after iteration: 49995000
+total after iteration: 4999950000
+total after iteration: 499999500000
+{
+  '100': 'iterated 100 elements in 40.24100303649902 microseconds',
+  '1000': 'iterated 1000 elements in 73.82398843765259 microseconds',
+  '10000': 'iterated 10000 elements in 1485.7839941978455 microseconds',
+  '100000': 'iterated 100000 elements in 4283.782005310059 microseconds',
+  '1000000': 'iterated 1000000 elements in 44838.26196193695 microseconds'
+}

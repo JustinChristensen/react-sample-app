@@ -1,0 +1,22 @@
+map has 100 keys
+deleting 7 keys...
+map now has 93 keys
+map has 1000 keys
+deleting 63 keys...
+map now has 937 keys
+map has 10000 keys
+deleting 663 keys...
+map now has 9337 keys
+map has 100000 keys
+deleting 6640 keys...
+map now has 93360 keys
+map has 1000000 keys
+deleting 66728 keys...
+map now has 933272 keys
+{
+  '100': 'worst: 21.911978721618652, average: 7.037137235913958 (in microseconds)',
+  '1000': 'worst: 3.4450292587280273, average: 0.6750623385111487 (in microseconds)',
+  '10000': 'worst: 4.234015941619873, average: 0.5232651309190297 (in microseconds)',
+  '100000': 'worst: 94.23595666885376, average: 0.4253342478390232 (in microseconds)',
+  '1000000': 'worst: 108.25002193450928, average: 0.37363371129031514 (in microseconds)'
+}

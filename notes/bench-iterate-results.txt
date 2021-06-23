@@ -1,0 +1,7 @@
+array iteration
+result: 49999995000000
+result: 49999995000000
+{
+  loop: { '10000000': '10000000 elements in 221164.1669999808 microseconds' },
+  forEach: { '10000000': '10000000 elements in 221164.1669999808 microseconds' }
+}

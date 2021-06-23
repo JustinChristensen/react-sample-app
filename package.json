@@ -7,7 +7,8 @@
     "build": "webpack",
     "lint": "eslint --ext .jsx,.js src",
     "start": "webpack serve",
-    "clean": "rm -rf dist"
+    "clean": "rm -rf dist",
+    "test": "jest"
   },
   "devDependencies": {
     "@babel/core": "^7.14.3",
@@ -22,6 +23,7 @@
     "css-loader": "^5.2.6",
     "css-minimizer-webpack-plugin": "^3.0.1",
     "eslint": "^7.28.0",
+    "eslint-plugin-jest": "^24.3.6",
     "eslint-plugin-react": "^7.24.0",
     "flag-icon-css": "^3.5.0",
     "html-webpack-plugin": "^5.3.1",
@@ -35,7 +37,6 @@
     "prop-types": "^15.7.2",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "react-redux": "^7.2.4",
     "redux": "^4.1.0",
     "redux-devtools-extension": "^2.13.9",
     "redux-logger": "^3.0.6",

@@ -1,5 +1,4 @@
 import PropTypes from 'prop-types';
-import { Fragment } from 'react';
 import { suffixWith } from '../utils/string.js';
 import { compose } from '../utils/fn.js';
 import { useUid, usePropsOrState, useT } from '../hooks';
@@ -68,7 +67,7 @@ export const EmployeeFields = props => {
     const keyupHandler = employee.id && onEmployeeFieldKeyUp;
 
     return (
-        <Fragment>
+        <>
             {employee.id && (
                 <Field className={fieldClasses}>
                     <label htmlFor={idId} className="visually-hidden">{$t('employeeForm.hiddenLabels.empId')}</label>
@@ -101,7 +100,7 @@ export const EmployeeFields = props => {
                     {departments.map(dpt => <option key={dpt} value={dpt}>{dpt}</option>)}
                 </select>
             </Field>
-        </Fragment>
+        </>
     );
 };
 
