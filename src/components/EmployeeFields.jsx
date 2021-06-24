@@ -10,7 +10,7 @@ export const defaultOnEmployeeFieldChange = e => {
     input.reportValidity();
 
     e.$dispatch(actions.UPDATE_EMPLOYEE({
-        id: e.employee.id,
+        id: Number(input.dataset.empid),
         [input.name]: input.value
     }));
 };
@@ -45,7 +45,7 @@ export const EmployeeFields = props => {
             departments: s.departments,
         })),
         useHandlers({
-            onEmployeeFieldChange: e => (e.employee = employee, defaultOnEmployeeFieldChange(e)),
+            onEmployeeFieldChange: defaultOnEmployeeFieldChange,
             onEmployeeFieldBlur: defaultOnEmployeeFieldBlur,
             onEmployeeFieldKeyUp: defaultOnEmployeeFieldKeyUp
         }),
@@ -83,25 +83,25 @@ export const EmployeeFields = props => {
             <Field className={fieldClasses}>
                 <label htmlFor={fnameId} className="visually-hidden">{$t('employeeForm.hiddenLabels.firstName')}</label>
                 <input name="firstName" type="text" id={fnameId} className={inputClasses} placeholder={$t('employeeForm.placeholders.firstName')}
-                    value={employee.firstName} onKeyUp={keyupHandler} onChange={changeHandler} onBlur={blurHandler} required />
+                    value={employee.firstName} onKeyUp={keyupHandler} onChange={changeHandler} onBlur={blurHandler} data-empid={employee.id} required />
             </Field>
 
             <Field className={fieldClasses}>
                 <label htmlFor={lnameId} className="visually-hidden">{$t('employeeForm.hiddenLabels.lastName')}</label>
                 <input name="lastName" type="text" id={lnameId} className={inputClasses} placeholder={$t('employeeForm.placeholders.lastName')}
-                    value={employee.lastName} onKeyUp={keyupHandler} onChange={changeHandler} onBlur={blurHandler} required />
+                    value={employee.lastName} onKeyUp={keyupHandler} onChange={changeHandler} onBlur={blurHandler} data-empid={employee.id} required />
             </Field>
 
             <Field className={fieldClasses}>
                 <label htmlFor={emailId} className="visually-hidden">{$t('employeeForm.hiddenLabels.email')}</label>
                 <input name="email" type="email" id={emailId} className={inputClasses} placeholder={$t('employeeForm.placeholders.email')}
-                    value={employee.email} onKeyUp={keyupHandler} onChange={changeHandler} onBlur={blurHandler} required />
+                    value={employee.email} onKeyUp={keyupHandler} onChange={changeHandler} onBlur={blurHandler} data-empid={employee.id} required />
             </Field>
 
             <Field className={fieldClasses}>
                 <label htmlFor={departmentId} className="visually-hidden">{$t('employeeForm.hiddenLabels.department')}</label>
                 <select name="department" id={departmentId} className={selectClasses} value={employee.department}
-                    onBlur={blurHandler} onChange={changeHandler} onKeyUp={keyupHandler}>
+                    onBlur={blurHandler} onChange={changeHandler} onKeyUp={keyupHandler} data-empid={employee.id}>
                     {departments.map(dpt => <option key={dpt} value={dpt}>{dpt}</option>)}
                 </select>
             </Field>

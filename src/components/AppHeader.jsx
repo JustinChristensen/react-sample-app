@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { usePropsSelector, useT, useUid, useHandlers } from '../hooks';
+import { usePropsSelector, useT, useUid, useHandlers, useDefaults } from '../hooks';
 import { compose, identity } from '../utils/fn.js';
 import { actions } from '../reducers';
 import { detectBrowserLocale, fetchMissingMessages } from '../lang.js';
@@ -24,15 +24,11 @@ export const HeaderMenu = props => {
         onDropdownMenuClick,
     } = compose(
         useUid,
-        usePropsSelector(s => ({
-            itemIdFn: identity,
-        })),
-        useHandlers({
-            onDropdownMenuKeyUp: defaultOnDropdownMenuKeyUp
-        })
+        useHandlers({ onDropdownMenuKeyUp: defaultOnDropdownMenuKeyUp }),
+        useDefaults({ itemIdFn: identity, renderItem: identity })
     )(props);
 
-    const unselectedItems = items.filter(p => p.id !== itemIdFn(selectedItem));
+    const unselectedItems = items.filter(p => itemIdFn(p) !== itemIdFn(selectedItem));
     const menuId = `header-menu-${$uid}`;
     const buttonClasses = classes => `${classes} btn py-3 px-4 text-white`;
 

@@ -4,7 +4,6 @@ import {
     defaultOnEmployeeFieldKeyUp,
     EmployeeFields
 } from './EmployeeFields.jsx';
-
 import { actions } from '../reducers';
 
 describe(EmployeeFields.name, () => {
@@ -89,14 +88,15 @@ describe(EmployeeFields.name, () => {
 describe(defaultOnEmployeeFieldChange.name, () => {
 
     test('dispatches UPDATE_EMPLOYEE', () => {
-        const e = makeContextEvent('change', {
-            target: createEl('input')
-        });
+        const input = createEl('input');
+        const e = makeContextEvent('change', { target: input });
 
-        e.employee = { id: 3 };
+        input.dataset.empid = '314';
+        input.name = 'foo';
+        input.value = 'bar';
         defaultOnEmployeeFieldChange(e);
 
-        expect(e).toHaveDispatched({ type: String(actions.UPDATE_EMPLOYEE) });
+        expect(e).toHaveDispatched({ type: String(actions.UPDATE_EMPLOYEE), data: { id: 314, foo: 'bar' } });
     });
 
 });
