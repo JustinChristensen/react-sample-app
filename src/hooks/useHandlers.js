@@ -4,7 +4,7 @@ import { isFunction} from '../utils/eq.js';
 
 const defineProp = (o, key, value) => Object.defineProperty(o, key, { value });
 
-const decorateEventHandlers = props => {
+const addContextToEvents = props => {
     const context = useContext(ReduxContext);
 
     if (!context) return props;
@@ -36,7 +36,7 @@ const decorateEventHandlers = props => {
 
 export const useHandlers = (handlers, userProps) => {
     const doHook = props => {
-        return Object.freeze(decorateEventHandlers({
+        return Object.freeze(addContextToEvents({
             ...handlers,
             ...props
         }));

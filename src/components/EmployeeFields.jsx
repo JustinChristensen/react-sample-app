@@ -20,7 +20,7 @@ export const defaultOnEmployeeFieldBlur = e => {
         e.preventDefault();
 };
 
-export const defaultEmployeeFieldKeyup = e => {
+export const defaultOnEmployeeFieldKeyUp = e => {
     if (e.key !== 'Enter') return;
 
     if (!e.target.reportValidity()) e.preventDefault();
@@ -47,7 +47,7 @@ export const EmployeeFields = props => {
         useHandlers({
             onEmployeeFieldChange: e => (e.employee = employee, defaultOnEmployeeFieldChange(e)),
             onEmployeeFieldBlur: defaultOnEmployeeFieldBlur,
-            onEmployeeFieldKeyUp: defaultEmployeeFieldKeyup
+            onEmployeeFieldKeyUp: defaultOnEmployeeFieldKeyUp
         }),
         useDefaults({
             departments: [],

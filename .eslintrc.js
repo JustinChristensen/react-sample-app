@@ -18,6 +18,11 @@ module.exports = {
         'es2021': true,
         'node': true
     },
+    'globals': {
+        'renderInto': true,
+        'makeContextEvent': true,
+        'createEl': true
+    },
     'extends': [
         'eslint:recommended',
         'plugin:react/recommended',

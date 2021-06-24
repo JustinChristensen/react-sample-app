@@ -36,11 +36,11 @@ export const useT = userProps => {
 
         // for reference equality checking below
         const defaultT = (key, values, defaultMsg) => {
-            const lang = navigator.languages[0];
+            if (!lastMessages.current) return key;  // default to just being identity
             let msg;
 
             // figure out our msg situation
-            if (messageAstCache[key]) msg = new IntlMessageFormat(messageAstCache[key], lang);
+            if (messageAstCache[key]) msg = new IntlMessageFormat(messageAstCache[key]);
             else {
                 const maybeMsg = get(lastMessages.current, key, defaultMsg);
 
@@ -49,7 +49,7 @@ export const useT = userProps => {
                 else if (!maybeMsg)
                     throw new MessageNotFoundError(key);
 
-                msg = new IntlMessageFormat(maybeMsg, lang);
+                msg = new IntlMessageFormat(maybeMsg);
                 messageAstCache[key] = msg.getAst();
             }
 
