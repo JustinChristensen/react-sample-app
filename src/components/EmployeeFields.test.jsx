@@ -1,19 +1,11 @@
-import {
-    defaultOnEmployeeFieldBlur,
-    defaultOnEmployeeFieldChange,
-    defaultOnEmployeeFieldKeyUp,
-    EmployeeFields
-} from './EmployeeFields.jsx';
-import { actions } from '../reducers';
+import { EmployeeFields } from './EmployeeFields.jsx';
 
 describe(EmployeeFields.name, () => {
 
     describe('without employee', () => {
         let form;
 
-        beforeAll(() => {
-            form = renderInto(<EmployeeFields />, 'form');
-        });
+        beforeAll(() => { form = renderInto(<EmployeeFields />, 'form'); });
 
         test('renders empty fields and no id field', () => {
             expect(form).toHaveFields('firstName', 'lastName', 'email', 'department');
@@ -81,63 +73,6 @@ describe(EmployeeFields.name, () => {
             expect(sections[0].className).toBe('foo bar');
         });
 
-    });
-
-});
-
-describe(defaultOnEmployeeFieldChange.name, () => {
-
-    test('dispatches UPDATE_EMPLOYEE', () => {
-        const input = createEl('input');
-        const e = makeContextEvent('change', { target: input });
-
-        input.dataset.empid = '314';
-        input.name = 'foo';
-        input.value = 'bar';
-        defaultOnEmployeeFieldChange(e);
-
-        expect(e).toHaveDispatched({ type: String(actions.UPDATE_EMPLOYEE), data: { id: 314, foo: 'bar' } });
-    });
-
-});
-
-describe(defaultOnEmployeeFieldBlur.name, () => {
-
-    test('prevents default if the input is not valid', () => {
-        const input = createEl('input');
-        const e = makeContextEvent('blur', { target: input });
-
-        input.required = true;
-        defaultOnEmployeeFieldBlur(e);
-
-        input.required = false;
-        defaultOnEmployeeFieldBlur(e);
-
-        expect(e.preventDefault).toHaveBeenCalledTimes(1);
-    });
-
-});
-
-describe(defaultOnEmployeeFieldKeyUp.name, () => {
-
-    test('prevents default if the input is not valid, on enter', () => {
-        const input = createEl('input');
-        const e = makeContextEvent('keyup', { target: input, key: 'Enter' }, KeyboardEvent);
-
-        input.required = true;
-        defaultOnEmployeeFieldKeyUp(e);
-
-        input.required = false;
-        defaultOnEmployeeFieldKeyUp(e);
-
-        expect(e.preventDefault).toHaveBeenCalledTimes(1);
-    });
-
-    test('returns otherwise', () => {
-        const input = createEl('input');
-        const e = makeContextEvent('keyup', { target: input, key: 'ArrowRight' }, KeyboardEvent);
-        defaultOnEmployeeFieldKeyUp(e);
-        expect(e.preventDefault).not.toHaveBeenCalled();
     });
 
 });

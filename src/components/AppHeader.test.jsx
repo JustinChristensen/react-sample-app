@@ -1,5 +1,4 @@
-import { defaultOnDropdownMenuKeyUp, HeaderMenu } from './AppHeader';
-import { actions } from '../reducers';
+import { AppHeader, HeaderMenu } from './AppHeader.jsx';
 
 const items = [
     'foo',
@@ -29,35 +28,8 @@ describe(HeaderMenu.name, () => {
 
 });
 
-describe(defaultOnDropdownMenuKeyUp.name, () => {
+describe(AppHeader.name, () => {
 
-    let div;
-
-    beforeAll(() => {
-        div = renderInto(<HeaderMenu items={items} selectedItem={selectedItem} />);
-    });
-
-    test('focuses next button on down arrow', () => {
-        const buttons = div.querySelectorAll('.dropdown-menu button');
-        const e = makeContextEvent('keyup', {
-            target: buttons[0],
-            key: 'ArrowDown'
-        }, KeyboardEvent);
-
-        buttons[0].focus = jest.fn();
-        buttons[1].focus = jest.fn();
-
-        defaultOnDropdownMenuKeyUp(e);
-        expect(buttons[0].focus).not.toHaveBeenCalled();
-        expect(buttons[1].focus).toHaveBeenCalled();
-
-        buttons[1].focus.mockClear();
-        e.key = 'ArrowUp';
-        e.target = buttons[1];
-        defaultOnDropdownMenuKeyUp(e);
-        expect(buttons[0].focus).toHaveBeenCalled();
-        expect(buttons[1].focus).not.toHaveBeenCalled();
-
-    });
+    test.todo('renders two menus');
 
 });

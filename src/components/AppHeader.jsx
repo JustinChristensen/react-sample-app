@@ -3,7 +3,6 @@ import { usePropsSelector, useT, useUid, useHandlers, useDefaults } from '../hoo
 import { compose, identity } from '../utils/fn.js';
 import { actions } from '../reducers';
 import { detectBrowserLocale, fetchMissingMessages } from '../lang.js';
-import { sitePath } from '../utils/env.js';
 
 export const defaultOnDropdownMenuKeyUp = e => {
     const maybeFocusItem = el => el && el.querySelector('.dropdown-item').focus();
@@ -21,7 +20,7 @@ export const HeaderMenu = props => {
         hoverText,
         renderItem,
         onDropdownMenuKeyUp,
-        onDropdownMenuClick,
+        onDropdownMenuClick
     } = compose(
         useUid,
         useHandlers({ onDropdownMenuKeyUp: defaultOnDropdownMenuKeyUp }),
@@ -107,7 +106,7 @@ export const AppHeader = props => {
             <div className="row align-items-center">
                 <div className="col">
                     <h2 className="my-2">
-                        <a href={sitePath} className="text-white text-decoration-none">{$t('header.heading')}</a>
+                        <a className="text-white text-decoration-none">{$t('header.heading')}</a>
                     </h2>
                 </div>
 

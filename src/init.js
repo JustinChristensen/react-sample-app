@@ -4,7 +4,7 @@ import { Provider } from './components/ReduxContext.jsx';
 import { createLogger } from 'redux-logger';
 import { composeWithDevTools } from 'redux-devtools-extension';
 import reducer, { actions } from './reducers';
-import { env, sitePath } from './utils/env.js';
+import { env } from './utils/env.js';
 import App from './components/App.jsx';
 import { detectBrowserLocale, fetchMissingMessages } from './lang.js';
 
@@ -70,7 +70,7 @@ export const loadProfiles = (app = {}) => new Promise((resolve, reject) => {
     const { profiles } = store.getState();
     if (profiles) return resolve(app);
 
-    fetch(`${sitePath}/profiles.json`).then(resp => {
+    fetch('profiles.json').then(resp => {
         if (!resp.ok) {
             app.initError = new Error('Failed to load profiles.');
             return reject(app);

@@ -1,4 +1,5 @@
 const { resolve } = require('path');
+const { SourceMapDevToolPlugin } = require('webpack');
 const HtmlPlugin = require('html-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
@@ -32,7 +33,6 @@ const loaders = () => ([
 ]);
 
 const devServer = () => ({
-    contentBase: './docs',
     host, port,
     clientLogLevel: 'silent'
 });
@@ -40,9 +40,8 @@ const devServer = () => ({
 module.exports = {
     mode: env,
     target: 'web', // https://github.com/webpack/webpack-dev-server/issues/2758
-    context: resolve('src'),
-    entry: '.',
-    devtool: devOrNot('inline-source-map', undefined),
+    entry: './src',
+    devtool: false,
     resolve: {
         extensions: ['.js', '.jsx', '.json']
     },
@@ -66,9 +65,13 @@ module.exports = {
         new MiniCssExtractPlugin({ filename: 'main.css' }),
         new CopyPlugin({
             patterns: [
-                { from: 'messages', to: 'messages' },
-                { from: 'profiles.json', to: 'profiles.json' }
+                { from: 'src/messages', to: 'messages' },
+                { from: 'src/profiles.json', to: 'profiles.json' }
             ]
+        }),
+        new SourceMapDevToolPlugin({
+            filename: devOrNot(undefined, '[file].map[query]'),
+            namespace: ''
         })
     ]
 };
