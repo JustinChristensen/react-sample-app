@@ -4,35 +4,49 @@ const { create: createReporter } = require('istanbul-reports');
 const { chromium } = require('playwright');
 const v8ToIstanbul = require('v8-to-istanbul');
 
-const identity = x => x;
-const compose2 = (f, g) => x => g(f(x));
-const compose = (...fns) => fns.flat().reduce(compose2, identity);
+const isArray = Array.isArray;
+const isString = s => typeof s === 'string';
+const isObject = o => String(o) === '[object Object]';
 
-const state = (stateFn, optionalTag) => ({
+const asyncReduce = (arr, fn, init) =>
+    arr.reduce((promise, x) => promise.then(memo => fn(memo, x)), Promise.resolve(init));
+
+const asyncForEach = (arr, fn) => asyncReduce(arr, (_, x) => fn(x));
+
+let uid = 0;
+const state = (stateFn, optionalTag = '') => ({
+    id: uid++,
     fn: stateFn,
     actions: {},
-    tag: optionalTag ?? ''
+    epsilons: [],
+    tag: optionalTag
 });
 
-const action = (action, nextState, actionFn, state) => {
-    const makeAction = state => {
-        if (!state) throw new Error('state is required');
+const action = (state, action, nextState, actionFn) => {
+    if (!state) throw new Error('state is required');
+
+    const addAction = (action, nextState, actionFn) => {
         if (!action) throw new Error('action is required');
         if (state.actions[action]) throw new Error(`action ${action} already already defined for state ${state.tag}`);
         state.actions[action] = [actionFn, nextState];
-        return state;
     };
 
-    return state ? makeAction(state) : makeAction;
+    return action ? addAction(action, nextState, actionFn) : addAction;
 };
 
-const checkPath = (state, actions = []) =>
-    actions.reduce((reached, action) => {
-        if (!state.actions[action]) return reached;
-        reached.push(action);
-        state = state.actions[action][1];
-        return reached;
-    }, []);
+const isActionSpec = maybeSpec => maybeSpec && isString(maybeSpec[0]);
+
+const actions = (state, epsilons, ...actionSpecs) => {
+    actionSpecs = actionSpecs.flat();
+
+    if (isActionSpec(epsilons)) {
+        actionSpecs = [epsilons].concat(actionSpecs);
+        epsilons = undefined;
+    }
+
+    if (epsilons) state.epsilons.push(...epsilons);
+    actionSpecs.forEach(spec => action(state, ...spec));
+};
 
 const startCoverage = async page =>
     await page.coverage.startJSCoverage();
@@ -57,36 +71,68 @@ const reportCoverage = coverageMap => {
     });
 };
 
-const isArray = Array.isArray;
-const isString = s => typeof s === 'string';
-const isObject = o => String(o) === '[object Object]';
+const close = (...states) => {
+    const found = [];
+    const visited = new Set();
+    const stack = [...states.flat()];
+    let state;
 
-const asyncForEach = (arr, fn) =>
-    arr.reduce((promise, x) => promise.then(() => fn(x)), Promise.resolve());
+    while (stack.length) {
+        state = stack.pop();
+        if (visited.has(state.id)) continue;
+        visited.add(state.id);
+        found.push(state);
+        stack.push(...state.epsilons);
+    }
+
+    return found;
+};
+
+const checkPath = (states, actions = []) => {
+    states = close(states);
+    actions.reduce((reached, action) => {
+        states = states.reduce((nextStates, state) => {
+            if (!state.actions[action]) return nextStates;
+            nextStates.push(state.actions[action][1]);
+            return nextStates;
+        });
+
+        if (states.length) reached.push(action);
+
+        return reached;
+    }, []);
+};
 
 const launch = async (startState, browserOpts, launchFn) => {
     const browser = await chromium.launch(browserOpts);
     const coverageMap = createCoverageMap();
 
     const run = async (pageOpts, ...actions) => {
+        actions = actions.flat();
         if (isString(pageOpts)) pageOpts = [pageOpts];
         if (isArray(pageOpts)) actions = pageOpts.concat(actions);
-        actions = actions.flat();
-
-        const page = await browser.newPage(isObject(pageOpts) ? pageOpts : undefined);
 
         const reached = checkPath(startState, actions);
-        if (reached.length !== actions.length) throw new Error(`Route not found:\nReached: ${reached}\nProvided: ${actions}`);
+        if (reached.length !== actions.length) throw new Error(`Action route not found.\nReached: ${reached}\nProvided: ${actions}`);
+
+        const page = await browser.newPage(isObject(pageOpts) ? pageOpts : undefined);
+        const runContext = { browser, page, context: {} };
 
         await startCoverage(page);
 
-        const runContext = { browser, page, context: {} };
-        let state = startState;
+        let states = close(startState);
         await asyncForEach(actions, async action => {
-            const [actionFn, nextState] = state.actions[action];
-            await actionFn(runContext);
-            await nextState.fn(runContext);
-            state = nextState;
+            states = close(await asyncReduce(states, async (nextStates, state) => {
+                if (!state.actions[action]) return nextStates;
+
+                const [actionFn, nextState] = state.actions[action];
+                await actionFn(runContext);
+                await nextState.fn(runContext);
+
+                nextStates.push(nextState);
+
+                return nextStates;
+            }, []));
         });
 
         await stopCoverage(coverageMap, page);
@@ -98,9 +144,9 @@ const launch = async (startState, browserOpts, launchFn) => {
 };
 
 module.exports = {
-    actions: compose,
     start: state(),
     state,
+    actions,
     action,
     launch
 };
