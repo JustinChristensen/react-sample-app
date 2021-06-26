@@ -31,11 +31,11 @@ export const EmployeeForm = props => {
     )(props);
 
     return (
-        <form className="row mb-4" onSubmit={onEmployeeFormSubmit}>
+        <form className="employee-form row mb-4" onSubmit={onEmployeeFormSubmit}>
             <EmployeeFields fieldClasses="col" />
 
             <div className="col d-flex justify-content-center">
-                <button type="submit" className="btn btn-primary" title={$t('employeeForm.actions.addTitle')}>
+                <button type="submit" className="add-employee-button btn btn-primary" title={$t('employeeForm.actions.addTitle')}>
                     <small>{$t('employeeForm.actions.add')}</small>
                 </button>
             </div>

@@ -1,5 +1,4 @@
 const { resolve } = require('path');
-const { SourceMapDevToolPlugin } = require('webpack');
 const HtmlPlugin = require('html-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
@@ -41,7 +40,7 @@ module.exports = {
     mode: env,
     target: 'web', // https://github.com/webpack/webpack-dev-server/issues/2758
     entry: './src',
-    devtool: false,
+    devtool: devOrNot('inline-source-map', 'source-map'),
     resolve: {
         extensions: ['.js', '.jsx', '.json']
     },
@@ -53,7 +52,8 @@ module.exports = {
     },
     output: {
         path: resolve('docs'),
-        filename: 'main.js'
+        filename: 'main.js',
+        devtoolNamespace: ''
     },
     module: {
         strictExportPresence: true,
@@ -68,10 +68,6 @@ module.exports = {
                 { from: 'src/messages', to: 'messages' },
                 { from: 'src/profiles.json', to: 'profiles.json' }
             ]
-        }),
-        new SourceMapDevToolPlugin({
-            filename: devOrNot(undefined, '[file].map[query]'),
-            namespace: ''
         })
     ]
 };

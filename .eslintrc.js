@@ -19,14 +19,10 @@ module.exports = {
         'node': true
     },
     'globals': {
-        'renderInto': true,
-        'makeContextEvent': true,
-        'createEl': true
     },
     'extends': [
         'eslint:recommended',
-        'plugin:react/recommended',
-        'plugin:jest/recommended',
+        'plugin:react/recommended'
     ],
     'parserOptions': {
         'ecmaVersion': 12,
@@ -130,7 +126,6 @@ module.exports = {
         ],
         'getter-return': 'error',
         'react/react-in-jsx-scope': 'off',
-        'jest/valid-title': ['warn', { ignoreTypeOfDescribeName: true }],
         ...styleGuide
     }
 };

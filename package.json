@@ -9,7 +9,7 @@
     "lint": "eslint --ext .jsx,.js src",
     "start": "webpack serve",
     "clean": "rm -rf dist",
-    "test": "jest"
+    "e2e": "node test/e2e/rm9000.spec.js"
   },
   "devDependencies": {
     "@babel/core": "^7.14.3",
@@ -24,8 +24,8 @@
     "css-loader": "^5.2.6",
     "css-minimizer-webpack-plugin": "^3.0.1",
     "eslint": "^7.28.0",
-    "eslint-plugin-jest": "^24.3.6",
     "eslint-plugin-react": "^7.24.0",
+    "expect": "^27.0.2",
     "flag-icon-css": "^3.5.0",
     "html-webpack-plugin": "^5.3.1",
     "immer": "^9.0.3",
@@ -33,7 +33,6 @@
     "istanbul-lib-coverage": "^3.0.0",
     "istanbul-lib-report": "^3.0.0",
     "istanbul-reports": "^3.0.2",
-    "jest": "^27.0.4",
     "mini-css-extract-plugin": "^1.6.0",
     "playwright": "^1.12.2",
     "postcss": "^8.3.0",

@@ -24,7 +24,7 @@ export const EmployeeTable = props => {
     return (
         <div className="row mb-4">
             <div className="col">
-                <table className="table table-hover table-borderless">
+                <table className="employee-table table table-hover table-borderless">
                     <thead>
                         <tr>
                             <th className="px-3">{$t('employeeTable.headings.empId')}</th>

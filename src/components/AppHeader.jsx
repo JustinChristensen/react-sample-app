@@ -3,6 +3,7 @@ import { usePropsSelector, useT, useUid, useHandlers, useDefaults } from '../hoo
 import { compose, identity } from '../utils/fn.js';
 import { actions } from '../reducers';
 import { detectBrowserLocale, fetchMissingMessages } from '../lang.js';
+import { classes } from '../utils/string.js';
 
 export const defaultOnDropdownMenuKeyUp = e => {
     const maybeFocusItem = el => el && el.querySelector('.dropdown-item').focus();
@@ -14,6 +15,7 @@ export const defaultOnDropdownMenuKeyUp = e => {
 export const HeaderMenu = props => {
     const {
         $uid,
+        className,
         items,
         selectedItem,
         itemIdFn,
@@ -32,7 +34,7 @@ export const HeaderMenu = props => {
     const buttonClasses = classes => `${classes} btn py-3 px-4 text-white`;
 
     return (
-        <div className="header-menu dropdown d-inline-block" title={hoverText}>
+        <div className={classes(className, 'header-menu dropdown d-inline-block')} title={hoverText}>
             <button className={buttonClasses('dropdown-toggle')} type="button" id={menuId}>
                 {renderItem(selectedItem)}
             </button>
@@ -51,9 +53,11 @@ export const HeaderMenu = props => {
 
 HeaderMenu.propTypes = {
     $uid: PropTypes.number,
+    className: PropTypes.string,
     items: PropTypes.array,
     selectedItem: PropTypes.any,
     itemIdFn: PropTypes.func,
+    hoverText: PropTypes.string,
     renderItem: PropTypes.func,
     onDropdownMenuKeyUp: PropTypes.func,
     onDropdownMenuClick: PropTypes.func
@@ -105,19 +109,19 @@ export const AppHeader = props => {
         <header className="header container-fluid mb-4">
             <div className="row align-items-center">
                 <div className="col">
-                    <h2 className="my-2">
+                    <h2 className="logotype my-2">
                         <a className="text-white text-decoration-none">{$t('header.heading')}</a>
                     </h2>
                 </div>
 
                 <div className="col">
                     <div className="float-end">
-                        <HeaderMenu items={availableLocales} selectedItem={selectedLocale} hoverText={$t('header.localeMenu.hoverText')}
-                            onDropdownMenuClick={onSelectLocale} renderItem={locale => (
+                        <HeaderMenu className="locale-menu" items={availableLocales} selectedItem={selectedLocale}
+                            hoverText={$t('header.localeMenu.hoverText')} onDropdownMenuClick={onSelectLocale} renderItem={locale => (
                                 <span className={flagClasses(locale)}></span>
                             )} />
-                        <HeaderMenu items={profiles} selectedItem={selectedProfile} itemIdFn={profile => profile.id} hoverText={$t('header.profileMenu.hoverText')}
-                            onDropdownMenuClick={onSelectProfile} renderItem={profile => (
+                        <HeaderMenu className="profile-menu" items={profiles} selectedItem={selectedProfile} itemIdFn={profile => profile.id}
+                            hoverText={$t('header.profileMenu.hoverText')} onDropdownMenuClick={onSelectProfile} renderItem={profile => (
                                 <>
                                     <i className="bi bi-person-circle"></i>
                                     <em className="ms-2 fst-normal">{profile.name}</em>
