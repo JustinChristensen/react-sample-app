@@ -53,7 +53,8 @@ module.exports = {
     output: {
         path: resolve('docs'),
         filename: 'main.js',
-        devtoolNamespace: ''
+        devtoolNamespace: '',
+        devtoolModuleFilenameTemplate: 'webpack://[resource-path]'
     },
     module: {
         strictExportPresence: true,

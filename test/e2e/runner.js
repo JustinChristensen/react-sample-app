@@ -4,6 +4,17 @@ const { create: createReporter } = require('istanbul-reports');
 const { chromium } = require('playwright');
 const v8ToIstanbul = require('v8-to-istanbul');
 
+// TODO:
+// - does it make sense for the inner loop to potentially trigger multiple transitions for a single action?
+//      i.e., should it stop after finding the first transition in either the root set or the epsilons?
+// - should run return the current set of states back to the caller, so that they can be fed into another run?
+//      i.e. should run be re-entrant?
+// - think about how best to annotate a run with a description of the test, maybe something like:
+//      await test('adds and deletes some employees', run('addEmployee', 'addEmployee', 'addEmployee', 'deleteEmployee'))
+// - format exceptions returned from the transition and state functions
+// - command line interface, that lets the user specify runs on the command line, host and port number for the target,
+//      request a textual representation of the NFA graph, with state tags and actions, and so on
+
 const isArray = Array.isArray;
 const isString = s => typeof s === 'string';
 const isObject = o => String(o) === '[object Object]';
@@ -64,7 +75,7 @@ const reportCoverage = coverageMap => {
     coverageMap.filter(file => !/node_modules|webpack|\?/.test(file));
     const reportContext = createContext({ coverageMap });
 
-    ['json', 'text', 'lcov'].forEach(reporter => {
+    ['json', 'text', 'html'].forEach(reporter => {
         createReporter(reporter).execute(reportContext);
     });
 };
@@ -123,19 +134,7 @@ const launch = async (startState, browserOpts, launchFn) => {
             throw new Error(`Action route not found.\nReached: ${JSON.stringify(reached)}\nProvided: ${JSON.stringify(actions)}`);
 
         const page = await browser.newPage(isObject(pageOpts) ? pageOpts : undefined);
-        const runContext = Object.freeze({ browser, page, context: {} });
-
-        const tryWith = action => async (nextStates, state) => {
-            if (!state.actions[action]) return nextStates;
-
-            await state.fn(runContext);
-            const [actionFn, nextState] = state.actions[action];
-            await actionFn(runContext);
-
-            nextStates.push(nextState);
-
-            return nextStates;
-        };
+        const fixtures = Object.freeze({ browser, page, context: {} });
 
         await startCoverage(page);
 
@@ -145,7 +144,18 @@ const launch = async (startState, browserOpts, launchFn) => {
             if (!first) process.stdout.write(' > ');
             process.stdout.write(action);
             first = false;
-            const tryState = tryWith(action);
+
+            const tryState = async (nextStates, state) => {
+                if (!state.actions[action]) return nextStates;
+
+                await state.fn(fixtures);
+                const [actionFn, nextState] = state.actions[action];
+                await actionFn(fixtures);
+
+                nextStates.push(nextState);
+
+                return nextStates;
+            };
 
             // scan the root set for viable transitions on the action
             root = await asyncReduce(root, tryState, []);
@@ -165,7 +175,9 @@ const launch = async (startState, browserOpts, launchFn) => {
         await stopCoverage(coverageMap, page);
     };
 
-    await launchFn({ browser, run });
+    const runAll = (...runs) => Promise.all(runs.flat());
+
+    await launchFn({ browser, run, runAll });
     reportCoverage(coverageMap);
     await browser.close();
 };

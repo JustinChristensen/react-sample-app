@@ -8,7 +8,8 @@ const home = state(async ({ page, context }) => {
         firstName = await page.$('.employee-form [name="firstName"]'),
         employeeRows = await page.$$('.employee-table tbody tr'),
         menus = await page.$$('.header-menu .dropdown-menu'),
-        localeToggle = await page.$('.locale-menu button');
+        localeToggle = await page.$('.locale-menu .dropdown-toggle'),
+        profileToggle = await page.$('.profile-menu .dropdown-toggle');
 
     for (const menu of menus)
         expect(await menu.isVisible()).not.toBeTruthy();
@@ -16,7 +17,8 @@ const home = state(async ({ page, context }) => {
     expect(logoText).not.toBe('');
     expect(await getValue(firstName)).toBe('');
     context.employeeCount = employeeRows.length;
-    context.selectedLocale = await localeToggle.getAttribute('data-id');
+    context.locale = await localeToggle.getAttribute('data-id');
+    context.profile = await profileToggle.getAttribute('data-id');
 });
 
 const addEmployeeFormFilled = state(async ({ page }) => {
@@ -27,22 +29,37 @@ const addEmployeeFormFilled = state(async ({ page }) => {
         expect(await getValue(field)).not.toBe('');
 });
 
-const localeMenuOpen = state(async ({ page }) => {
-    const localeMenu = await page.$('.locale-menu'),
-        toggleButton = await localeMenu.$('.dropdown-toggle'),
-        menu = await localeMenu.$('.dropdown-menu'),
+const expectMenuOpen = async (menuSelector, { page }) => {
+    const headerMenu = await page.$(menuSelector),
+        toggleButton = await headerMenu.$('.dropdown-toggle'),
+        menu = await headerMenu.$('.dropdown-menu'),
         menuButtons = await menu.$$('button');
 
-    const selectedLocale = await toggleButton.getAttribute('data-id');
-    const menuLocales = await Promise.all(menuButtons.map(button => button.getAttribute('data-id')));
+    const selectedItem = await toggleButton.getAttribute('data-id');
+    const menuItems = await Promise.all(menuButtons.map(button => button.getAttribute('data-id')));
 
     expect(await menu.isVisible()).toBeTruthy();
-    expect(menuLocales).not.toContain(selectedLocale);
-});
+    expect(menuItems).not.toContain(selectedItem);
+};
+
+const localeMenuOpen = state(async fixtures => expectMenuOpen('.locale-menu', fixtures));
+const profileMenuOpen = state(async fixtures => expectMenuOpen('.profile-menu', fixtures));
 
 const localeChanged = state(async ({ page, context }) => {
     const localeToggle = await page.$('.locale-menu .dropdown-toggle');
-    expect(context.locale).not.toBe(await localeToggle.getAttribute('data-id'));
+    const toggleId = await localeToggle.getAttribute('data-id');
+    console.log(context.locale, toggleId);
+    expect(context.locale).not.toBe(toggleId);
+    context.locale = toggleId;
+});
+
+const profileChanged = state(async ({ page, context }) => {
+    const profileToggle = await page.$('.profile-menu .dropdown-toggle');
+    expect(context.profile).not.toBe('');
+    const toggleId = await profileToggle.getAttribute('data-id');
+    console.log(context.profile, toggleId);
+    expect(context.profile).not.toBe(toggleId);
+    context.profile = toggleId;
 });
 
 const employeeAdded = state(async ({ page, context }) => {
@@ -74,6 +91,10 @@ actions(home,
 
     ['clickLocaleMenu', localeMenuOpen, async ({ page }) =>
         await page.click('.locale-menu .dropdown-toggle')
+    ],
+
+    ['clickProfileMenu', profileMenuOpen, async ({ page }) =>
+        await page.click('.profile-menu .dropdown-toggle')
     ]
 
 );
@@ -118,6 +139,15 @@ actions(localeMenuOpen,
 
 );
 
+actions(profileMenuOpen,
+
+    ['clickRon', profileChanged, async ({ page }) => {
+        const profileButton = await page.$('.profile-menu .dropdown-menu button[data-id="2"]');
+        await profileButton.click();
+    }]
+
+);
+
 actions(localeChanged, [home]);
 
 actions(start,
@@ -128,14 +158,10 @@ actions(start,
 
 );
 
-launch(start, { headless: false }, async ({ run }) => {
-    await run([
-        'goHome',
-        'fillAddEmployeeForm',
-        'submitAddEmployeeForm',
-        'changeEmployeeDepartment',
-        'deleteEmployee',
-        'clickLocaleMenu',
-        'clickFrance'
-    ]);
+launch(start, { headless: false }, async ({ run, runAll }) => {
+    await runAll(
+        run(['goHome', 'fillAddEmployeeForm', 'submitAddEmployeeForm', 'changeEmployeeDepartment', 'deleteEmployee']),
+        run(['goHome', 'clickLocaleMenu', 'clickFrance']),
+        run(['goHome', 'clickProfileMenu', 'clickRon'])
+    );
 });
