@@ -35,7 +35,7 @@ export const HeaderMenu = props => {
 
     return (
         <div className={classes(className, 'header-menu dropdown d-inline-block')} title={hoverText}>
-            <button className={buttonClasses('dropdown-toggle')} type="button" id={menuId}>
+            <button className={buttonClasses('dropdown-toggle')} type="button" id={menuId} data-id={itemIdFn(selectedItem)}>
                 {renderItem(selectedItem)}
             </button>
             <ul className="dropdown-menu dropdown-menu-dark py-0 start-0 end-0" aria-labelledby={menuId} onKeyUp={onDropdownMenuKeyUp}>

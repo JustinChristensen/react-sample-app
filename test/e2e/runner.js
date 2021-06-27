@@ -37,8 +37,6 @@ const action = (state, action, nextState, actionFn) => {
 const isActionSpec = maybeSpec => maybeSpec && isString(maybeSpec[0]);
 
 const actions = (state, epsilons, ...actionSpecs) => {
-    actionSpecs = actionSpecs.flat();
-
     if (isActionSpec(epsilons)) {
         actionSpecs = [epsilons].concat(actionSpecs);
         epsilons = undefined;
@@ -72,30 +70,38 @@ const reportCoverage = coverageMap => {
 };
 
 const close = (...states) => {
-    const found = [];
+    states = states.flat();
+
+    const root = [], epsilons = [];
+    const rootSet = new Set(states.map(s => s.id));
     const visited = new Set();
-    const stack = [...states.flat()];
+    const stack = [...states];
     let state;
 
     while (stack.length) {
         state = stack.pop();
         if (visited.has(state.id)) continue;
         visited.add(state.id);
-        found.push(state);
+
+        // root set states will have priority
+        if (rootSet.has(state.id)) root.push(state);
+        else epsilons.push(state);
+
         stack.push(...state.epsilons);
     }
 
-    return found;
+    return [root, epsilons];
 };
 
 const checkPath = (states, actions = []) => {
-    states = close(states);
-    actions.reduce((reached, action) => {
-        states = states.reduce((nextStates, state) => {
+    states = close(states).flat();
+
+    return actions.reduce((reached, action) => {
+        states = close(states.reduce((nextStates, state) => {
             if (!state.actions[action]) return nextStates;
             nextStates.push(state.actions[action][1]);
             return nextStates;
-        });
+        }, [])).flat();
 
         if (states.length) reached.push(action);
 
@@ -113,27 +119,48 @@ const launch = async (startState, browserOpts, launchFn) => {
         if (isArray(pageOpts)) actions = pageOpts.concat(actions);
 
         const reached = checkPath(startState, actions);
-        if (reached.length !== actions.length) throw new Error(`Action route not found.\nReached: ${reached}\nProvided: ${actions}`);
+        if (reached.length !== actions.length)
+            throw new Error(`Action route not found.\nReached: ${JSON.stringify(reached)}\nProvided: ${JSON.stringify(actions)}`);
 
         const page = await browser.newPage(isObject(pageOpts) ? pageOpts : undefined);
-        const runContext = { browser, page, context: {} };
+        const runContext = Object.freeze({ browser, page, context: {} });
+
+        const tryWith = action => async (nextStates, state) => {
+            if (!state.actions[action]) return nextStates;
+
+            await state.fn(runContext);
+            const [actionFn, nextState] = state.actions[action];
+            await actionFn(runContext);
+
+            nextStates.push(nextState);
+
+            return nextStates;
+        };
 
         await startCoverage(page);
 
-        let states = close(startState);
+        let first = true;
+        let [root, epsilon] = close(startState);
         await asyncForEach(actions, async action => {
-            states = close(await asyncReduce(states, async (nextStates, state) => {
-                if (!state.actions[action]) return nextStates;
+            if (!first) process.stdout.write(' > ');
+            process.stdout.write(action);
+            first = false;
+            const tryState = tryWith(action);
 
-                const [actionFn, nextState] = state.actions[action];
-                await actionFn(runContext);
-                await nextState.fn(runContext);
+            // scan the root set for viable transitions on the action
+            root = await asyncReduce(root, tryState, []);
 
-                nextStates.push(nextState);
+            // we found transitions in the root set, no need to scan the epsilons
+            if (root.length) {
+                [root, epsilon] = close(root);
+                return;
+            }
 
-                return nextStates;
-            }, []));
+            // scan the epsilons
+            [root, epsilon] = close(await asyncReduce(epsilon, tryState, []));
         });
+
+        process.stdout.write('\n');
 
         await stopCoverage(coverageMap, page);
     };
@@ -144,9 +171,8 @@ const launch = async (startState, browserOpts, launchFn) => {
 };
 
 module.exports = {
-    start: state(),
+    start: state(() => {}),
     state,
     actions,
-    action,
     launch
 };

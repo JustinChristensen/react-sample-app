@@ -41,7 +41,7 @@ export const EmployeeTable = props => {
                                 <EmployeeFields employee={employee} fieldTag="td" />
 
                                 <td>
-                                    <button className="btn btn-link py-0 px-2 mt-1 text-decoration-none" title={$t('employeeTable.actions.deleteTitle')}
+                                    <button className="delete-employee-button btn btn-link py-0 px-2 mt-1 text-decoration-none" title={$t('employeeTable.actions.deleteTitle')}
                                         data-id={employee.id} onClick={onEmployeeDeleteClick}>
                                         {$t('employeeTable.actions.delete')}
                                     </button>
