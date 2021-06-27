@@ -48,7 +48,6 @@ const profileMenuOpen = state(async fixtures => expectMenuOpen('.profile-menu', 
 const localeChanged = state(async ({ page, context }) => {
     const localeToggle = await page.$('.locale-menu .dropdown-toggle');
     const toggleId = await localeToggle.getAttribute('data-id');
-    console.log(context.locale, toggleId);
     expect(context.locale).not.toBe(toggleId);
     context.locale = toggleId;
 });
@@ -57,7 +56,6 @@ const profileChanged = state(async ({ page, context }) => {
     const profileToggle = await page.$('.profile-menu .dropdown-toggle');
     expect(context.profile).not.toBe('');
     const toggleId = await profileToggle.getAttribute('data-id');
-    console.log(context.profile, toggleId);
     expect(context.profile).not.toBe(toggleId);
     context.profile = toggleId;
 });

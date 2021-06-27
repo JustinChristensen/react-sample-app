@@ -8,7 +8,7 @@ const v8ToIstanbul = require('v8-to-istanbul');
 // - does it make sense for the inner loop to potentially trigger multiple transitions for a single action?
 //      i.e., should it stop after finding the first transition in either the root set or the epsilons?
 // - should run return the current set of states back to the caller, so that they can be fed into another run?
-//      i.e. should run be re-entrant?
+//      i.e. should run be re-entrant, so that runs can be composed together?
 // - think about how best to annotate a run with a description of the test, maybe something like:
 //      await test('adds and deletes some employees', run('addEmployee', 'addEmployee', 'addEmployee', 'deleteEmployee'))
 // - format exceptions returned from the transition and state functions
@@ -148,6 +148,10 @@ const launch = async (startState, browserOpts, launchFn) => {
             const tryState = async (nextStates, state) => {
                 if (!state.actions[action]) return nextStates;
 
+                // lazily execute the state function just before transitioning away
+                // the other approach would be to execute the state function just after transitioning
+                // to it, but this will blow up the total number of state functions that get executed
+                // and lead to lots of duplicate state testing
                 await state.fn(fixtures);
                 const [actionFn, nextState] = state.actions[action];
                 await actionFn(fixtures);
@@ -169,6 +173,8 @@ const launch = async (startState, browserOpts, launchFn) => {
             // scan the epsilons
             [root, epsilon] = close(await asyncReduce(epsilon, tryState, []));
         });
+
+        await asyncForEach(root, state => state.fn(fixtures));
 
         process.stdout.write('\n');
 
