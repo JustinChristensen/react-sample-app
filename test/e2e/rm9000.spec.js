@@ -1,4 +1,4 @@
-const { state, actions, start, launch, action } = require('./runner.js');
+const { state, actions, start, launch } = require('./runner.js');
 const expect = require('expect');
 
 const getValue = elem => elem.evaluate(node => node.value);
