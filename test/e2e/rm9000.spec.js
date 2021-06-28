@@ -156,10 +156,10 @@ actions(start,
 
 );
 
-launch(start, { headless: false }, async ({ run, runAll }) => {
+launch({ headless: false }, async ({ run, runAll }) => {
     await runAll(
-        run(['goHome', 'fillAddEmployeeForm', 'submitAddEmployeeForm', 'changeEmployeeDepartment', 'deleteEmployee']),
-        run(['goHome', 'clickLocaleMenu', 'clickFrance']),
-        run(['goHome', 'clickProfileMenu', 'clickRon'])
+        run(['goHome', 'fillAddEmployeeForm', 'submitAddEmployeeForm', 'changeEmployeeDepartment', 'deleteEmployee'])
+        // run(['goHome', 'clickLocaleMenu', 'clickFrance']),
+        // run(['goHome', 'clickProfileMenu', 'clickRon'])
     );
 });

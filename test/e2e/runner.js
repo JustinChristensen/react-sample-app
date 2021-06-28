@@ -33,6 +33,8 @@ const state = (stateFn, optionalTag = '') => ({
     tag: optionalTag
 });
 
+const start = state(() => {});
+
 const action = (state, action, nextState, actionFn) => {
     if (!state) throw new Error('state is required');
 
@@ -45,17 +47,15 @@ const action = (state, action, nextState, actionFn) => {
     return action ? addAction(action, nextState, actionFn) : addAction;
 };
 
-const isActionSpec = maybeSpec => maybeSpec && isString(maybeSpec[0]);
+const actions = (state, ...actionSpecs) =>
+    actionSpecs.forEach(spec => {
+        if (isObject(spec[0])) {
+            state.epsilons.push(...spec);
+            return;
+        }
 
-const actions = (state, epsilons, ...actionSpecs) => {
-    if (isActionSpec(epsilons)) {
-        actionSpecs = [epsilons].concat(actionSpecs);
-        epsilons = undefined;
-    }
-
-    if (epsilons) state.epsilons.push(...epsilons);
-    actionSpecs.forEach(spec => action(state, ...spec));
-};
+        action(state, ...spec);
+    });
 
 const startCoverage = async page =>
     await page.coverage.startJSCoverage();
@@ -120,7 +120,7 @@ const checkPath = (states, actions = []) => {
     }, []);
 };
 
-const launch = async (startState, browserOpts, launchFn) => {
+const launch = async (browserOpts, launchFn) => {
     const browser = await chromium.launch(browserOpts);
     const coverageMap = createCoverageMap();
 
@@ -129,7 +129,7 @@ const launch = async (startState, browserOpts, launchFn) => {
         if (isString(pageOpts)) pageOpts = [pageOpts];
         if (isArray(pageOpts)) actions = pageOpts.concat(actions);
 
-        const reached = checkPath(startState, actions);
+        const reached = checkPath(start, actions);
         if (reached.length !== actions.length)
             throw new Error(`Action route not found.\nReached: ${JSON.stringify(reached)}\nProvided: ${JSON.stringify(actions)}`);
 
@@ -139,7 +139,7 @@ const launch = async (startState, browserOpts, launchFn) => {
         await startCoverage(page);
 
         let first = true;
-        let [root, epsilon] = close(startState);
+        let [root, epsilon] = close(start);
         await asyncForEach(actions, async action => {
             if (!first) process.stdout.write(' > ');
             process.stdout.write(action);
@@ -148,13 +148,13 @@ const launch = async (startState, browserOpts, launchFn) => {
             const tryState = async (nextStates, state) => {
                 if (!state.actions[action]) return nextStates;
 
-                // lazily execute the state function just before transitioning away
-                // the other approach would be to execute the state function just after transitioning
-                // to it, but this will blow up the total number of state functions that get executed
-                // and lead to lots of duplicate state testing
-                await state.fn(fixtures);
                 const [actionFn, nextState] = state.actions[action];
                 await actionFn(fixtures);
+                // eagerly execute the next state function
+                // this should be fine, because we're explicitly giving root states
+                // precedence over epsilon states, and the number of transitions should
+                // then be fairly limited for each action
+                await nextState.fn(fixtures);
 
                 nextStates.push(nextState);
 
@@ -170,11 +170,9 @@ const launch = async (startState, browserOpts, launchFn) => {
                 return;
             }
 
-            // scan the epsilons
+            // no transitions found, scan the epsilons
             [root, epsilon] = close(await asyncReduce(epsilon, tryState, []));
         });
-
-        await asyncForEach(root, state => state.fn(fixtures));
 
         process.stdout.write('\n');
 
@@ -189,7 +187,7 @@ const launch = async (startState, browserOpts, launchFn) => {
 };
 
 module.exports = {
-    start: state(() => {}),
+    start,
     state,
     actions,
     launch
