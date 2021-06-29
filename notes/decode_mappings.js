@@ -20,7 +20,7 @@ const mainFile = readFileSync('./main.js', 'utf8');
 const mappings = sourcemap.mappings;
 
 const groupMappings = mappings.split(';').map(group => {
-    if (group === '') return [];
+    if (group === '') return undefined;
 
     return group.split(',').map(segment => {
         const fields = [];
@@ -44,7 +44,7 @@ const groupMappings = mappings.split(';').map(group => {
 
         return fields;
     });
-})
+});
 
 const lineMappings = mappings.split(';');
 
@@ -56,45 +56,48 @@ let source = 0, sourceLine = 0, sourceCol = 0, name = 0;
 let first = true;
 
 groupMappings.forEach((segments, i) => {
-    let locations = segments.map(([genCol, src, sl, sc, na]) => {
-        let loc = `[${genCol}]:`;
+    let lineMapping = '', locations = '';
 
-        if (src !== undefined) {
-            let sym = '';
+    const MAPPING_LIMIT = 25, LOCATIONS_LIMIT = 80;
 
-            const nextSource = source + src;
-            sourceLine += sl;
-            sourceCol += sc;
+    if (segments) {
+        locations = segments.map(([genCol, src, sl, sc, na]) => {
+            let loc = `[${genCol}]:`;
 
-            let srcPath = '';
+            if (src !== undefined) {
+                let sym = '';
 
-            if (first || nextSource !== source)
-                srcPath = `${sourcemap.sources[nextSource]}:`;
+                const nextSource = source + src;
+                sourceLine += sl;
+                sourceCol += sc;
 
-            first = false;
-            source = nextSource;
+                let srcPath = '';
 
-            if (na !== undefined) {
-                name += na;
-                sym = `:${sourcemap.names[name]}`;
+                if (first || nextSource !== source)
+                    srcPath = `${sourcemap.sources[nextSource]}:`;
+
+                first = false;
+                source = nextSource;
+
+                if (na !== undefined) {
+                    name += na;
+                    sym = `:${sourcemap.names[name]}`;
+                }
+
+                loc += `${srcPath}${sourceLine}:${sourceCol}${sym}`;
             }
 
-            loc += `${srcPath}${sourceLine}:${sourceCol}${sym}`;
-        }
+            return loc;
+        }).join(',');
 
-        return loc;
-    });
+        lineMapping = lineMappings[i];
 
-    const MAPPING_LIMIT = 25,
-        LOCATIONS_LIMIT = 80;
+        if (lineMapping.length > MAPPING_LIMIT)
+            lineMapping = lineMapping.slice(0, MAPPING_LIMIT - 3) + '...';
 
-    let lineMapping = lineMappings[i];
-    if (lineMapping.length > MAPPING_LIMIT)
-        lineMapping = lineMapping.slice(0, MAPPING_LIMIT - 3) + '...';
-
-    locations = locations.join(',');
-    if (locations.length > LOCATIONS_LIMIT)
-        locations = locations.slice(0, LOCATIONS_LIMIT - 3) + '...';
+        if (locations.length > LOCATIONS_LIMIT)
+            locations = locations.slice(0, LOCATIONS_LIMIT - 3) + '...';
+    }
 
     console.log('%s | %s | %s', lineMapping.padEnd(MAPPING_LIMIT), locations.padEnd(LOCATIONS_LIMIT), mainLines[i]);
 });
