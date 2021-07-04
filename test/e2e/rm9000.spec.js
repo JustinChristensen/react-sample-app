@@ -1,10 +1,13 @@
 const { state, actions, start, launch } = require('./runner.js');
 const expect = require('expect');
 
-const getValue = elem => elem.evaluate(node => node.value);
+const getValue = handle => handle.evaluate(node => node.value);
+const hasFocus = handle => handle.evaluate(node => node === document.activeElement);
+const isValid = handle => handle.evaluate(node => node.checkValidity());
 
 const home = state(async ({ page, context }) => {
-    const logoText = await page.innerText('.logotype'),
+    const body = await page.$('body'),
+        logoText = await page.innerText('.logotype'),
         firstName = await page.$('.employee-form [name="firstName"]'),
         employeeRows = await page.$$('.employee-table tbody tr'),
         menus = await page.$$('.header-menu .dropdown-menu'),
@@ -14,8 +17,10 @@ const home = state(async ({ page, context }) => {
     for (const menu of menus)
         expect(await menu.isVisible()).not.toBeTruthy();
 
+    expect(await hasFocus(body)).toBe(true);
     expect(logoText).not.toBe('');
     expect(await getValue(firstName)).toBe('');
+
     context.employeeCount = employeeRows.length;
     context.locale = await localeToggle.getAttribute('data-id');
     context.profile = await profileToggle.getAttribute('data-id');
@@ -42,14 +47,28 @@ const expectMenuOpen = async (menuSelector, { page }) => {
     expect(menuItems).not.toContain(selectedItem);
 };
 
-const localeMenuOpen = state(async fixtures => expectMenuOpen('.locale-menu', fixtures));
-const profileMenuOpen = state(async fixtures => expectMenuOpen('.profile-menu', fixtures));
+const localeMenuOpen = state(fixtures => expectMenuOpen('.locale-menu', fixtures));
+const profileMenuOpen = state(fixtures => expectMenuOpen('.profile-menu', fixtures));
 
 const localeChanged = state(async ({ page, context }) => {
     const localeToggle = await page.$('.locale-menu .dropdown-toggle');
     const toggleId = await localeToggle.getAttribute('data-id');
     expect(context.locale).not.toBe(toggleId);
     context.locale = toggleId;
+});
+
+const profileSelected = state(async ({ page, context }) => {
+    const menuButtons = await page.$$('.profile-menu .dropdown-menu button');
+    const focusedIndex = await page.evaluate(buttons =>
+        buttons.findIndex(b => b === document.activeElement), menuButtons);
+
+    if (context.direction === 'down') {
+        expect(focusedIndex).toBe(context.focusedMenuButton + 1);
+        context.focusedMenuButton++;
+    } else if (context.direction === 'up') {
+        expect(focusedIndex).toBe(context.focusedMenuButton - 1);
+        context.focusedMenuButton--;
+    }
 });
 
 const profileChanged = state(async ({ page, context }) => {
@@ -62,7 +81,7 @@ const profileChanged = state(async ({ page, context }) => {
 
 const employeeAdded = state(async ({ page, context }) => {
     const employeeRows = await page.$$('.employee-table tbody tr');
-    expect(employeeRows.length).toBeGreaterThan(context.employeeCount);
+    expect(employeeRows.length).toBe(context.employeeCount + 1);
     context.employeeCount = employeeRows.length;
 });
 
@@ -73,18 +92,42 @@ const employeeChanged = state(async ({ page, context }) => {
 
 const employeeDeleted = state(async ({ page, context }) => {
     const employeeRows = await page.$$('.employee-table tbody tr');
-    expect(employeeRows.length).toBeLessThan(context.employeeCount);
+    expect(employeeRows.length).toBe(context.employeeCount - 1);
     context.employeeCount = employeeRows.length;
 });
 
+const tableEmailFieldInvalid = state(async ({ page }) => {
+    const emailField = await page.$('.employee-table tbody tr [name="email"]');
+    expect(await isValid(emailField)).toBe(false);
+    expect(await hasFocus(emailField)).toBe(true);
+});
+
+const tableEmailFieldValid = state(async ({ page }) => {
+    const emailField = await page.$('.employee-table tbody tr [name="email"]');
+    expect(await isValid(emailField)).toBe(true);
+    expect(await hasFocus(emailField)).toBe(true);
+});
+
+const submitAddEmployeeForm = async ({ page }) => {
+    const submitBtn = await page.$('.add-employee-button');
+    await submitBtn.click();
+};
+
+const fillAddEmployeeForm = async ({ page }) => {
+    await page.fill('.employee-form [name="firstName"]', 'Gone');
+    await page.fill('.employee-form [name="lastName"]', 'Johnson');
+    await page.fill('.employee-form [name="email"]', 'gone.johnson@corp.com');
+    await page.selectOption('.employee-form [name="department"]', 'Maintenance');
+    await page.focus('.add-employee-button');
+};
+
 actions(home,
 
-    ['fillAddEmployeeForm', addEmployeeFormFilled, async ({ page }) => {
-        await page.fill('.employee-form [name="firstName"]', 'Gone');
-        await page.fill('.employee-form [name="lastName"]', 'Johnson');
-        await page.fill('.employee-form [name="email"]', 'gone.johnson@corp.com');
-        await page.selectOption('.employee-form [name="department"]', 'Maintenance');
-        await page.focus('.add-employee-button');
+    [fillAddEmployeeForm, addEmployeeFormFilled],
+
+    ['addEmployee', employeeAdded, async fixtures => {
+        await fillAddEmployeeForm(fixtures);
+        await submitAddEmployeeForm(fixtures);
     }],
 
     ['clickLocaleMenu', localeMenuOpen, async ({ page }) =>
@@ -99,10 +142,7 @@ actions(home,
 
 actions(addEmployeeFormFilled,
 
-    ['submitAddEmployeeForm', employeeAdded, async ({ page }) => {
-        const submitBtn = await page.$('.add-employee-button');
-        await submitBtn.click();
-    }]
+    [submitAddEmployeeForm, employeeAdded]
 
 );
 
@@ -119,6 +159,10 @@ actions(employeeAdded,
         context.employee.department = await getValue(departments);
 
         await departments.selectOption('Human Resources');
+    }],
+
+    ['clearEmployeeEmail', tableEmailFieldInvalid, async ({ page }) => {
+        await page.fill('.employee-table tbody tr [name="email"]', '');
     }],
 
     deleteEmployee
@@ -142,11 +186,51 @@ actions(profileMenuOpen,
     ['clickRon', profileChanged, async ({ page }) => {
         const profileButton = await page.$('.profile-menu .dropdown-menu button[data-id="2"]');
         await profileButton.click();
+    }],
+
+    ['pressTabAndDownArrow', profileSelected, async ({ page, context }) => {
+        await page.keyboard.press('Tab');
+        await page.keyboard.press('ArrowDown');
+        context.focusedMenuButton = 0;
+        context.direction = 'down';
     }]
 
 );
 
 actions(localeChanged, [home]);
+actions(profileChanged, [home]);
+actions(profileSelected,
+
+    ['pressUpArrow', profileSelected, async ({ page, context }) => {
+        await page.keyboard.press('ArrowUp');
+        context.direction = 'up';
+    }]
+
+);
+
+const hitEnter = async ({ page }) => {
+    await page.keyboard.press('Enter');
+};
+
+actions(tableEmailFieldInvalid,
+
+    ['tryFocusSomethingElse', tableEmailFieldInvalid, async ({ page }) => {
+        await page.keyboard.press('Tab');
+    }] ,
+
+    [hitEnter, tableEmailFieldInvalid],
+
+    ['changeEmployeeEmail', tableEmailFieldValid, async ({ page }) => {
+        await page.fill('.employee-table tbody tr [name="email"]', 'gone.johnson@runs.com');
+    }]
+
+);
+
+actions(tableEmailFieldValid,
+
+    [hitEnter, home]
+
+);
 
 actions(start,
 
@@ -158,8 +242,9 @@ actions(start,
 
 launch({ headless: false }, async ({ run, runAll }) => {
     await runAll(
-        run(['goHome', 'fillAddEmployeeForm', 'submitAddEmployeeForm', 'changeEmployeeDepartment', 'deleteEmployee'])
-        // run(['goHome', 'clickLocaleMenu', 'clickFrance']),
-        // run(['goHome', 'clickProfileMenu', 'clickRon'])
+        run('goHome', 'fillAddEmployeeForm', 'submitAddEmployeeForm', 'changeEmployeeDepartment', 'deleteEmployee'),
+        run('goHome', 'clickLocaleMenu', 'clickFrance'),
+        run('goHome', 'clickProfileMenu', 'clickRon', 'clickProfileMenu', 'pressTabAndDownArrow', 'pressUpArrow'),
+        run('goHome', 'addEmployee', 'clearEmployeeEmail', 'tryFocusSomethingElse', 'hitEnter', 'changeEmployeeEmail', 'hitEnter')
     );
 });

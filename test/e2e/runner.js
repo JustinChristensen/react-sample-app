@@ -2,6 +2,7 @@ const { createCoverageMap } = require('istanbul-lib-coverage');
 const { createContext } = require('istanbul-lib-report');
 const { create: createReporter } = require('istanbul-reports');
 const { chromium } = require('playwright');
+const assert = require('assert/strict');
 const v8ToIstanbul = require('v8-to-istanbul');
 
 // TODO:
@@ -11,12 +12,15 @@ const v8ToIstanbul = require('v8-to-istanbul');
 //      i.e. should run be re-entrant, so that runs can be composed together?
 // - think about how best to annotate a run with a description of the test, maybe something like:
 //      await test('adds and deletes some employees', run('addEmployee', 'addEmployee', 'addEmployee', 'deleteEmployee'))
-// - format exceptions returned from the transition and state functions
+// - format exceptions thrown from the transition and state functions
 // - command line interface, that lets the user specify runs on the command line, host and port number for the target,
 //      request a textual representation of the NFA graph, with state tags and actions, and so on
+// - use assertions instead of throwing errors
+// - timings and logging
 
 const isArray = Array.isArray;
 const isString = s => typeof s === 'string';
+const isFunction = f => typeof f === 'function';
 const isObject = o => String(o) === '[object Object]';
 
 const asyncReduce = (arr, fn, init) =>
@@ -36,11 +40,11 @@ const state = (stateFn, optionalTag = '') => ({
 const start = state(() => {});
 
 const action = (state, action, nextState, actionFn) => {
-    if (!state) throw new Error('state is required');
+    assert(state, 'state is required');
 
     const addAction = (action, nextState, actionFn) => {
-        if (!action) throw new Error('action is required');
-        if (state.actions[action]) throw new Error(`action ${action} already already defined for state ${state.tag}`);
+        assert(action, 'action is required');
+        assert(!state.actions[action], `action ${action} already already defined for state ${state.tag}`);
         state.actions[action] = [actionFn, nextState];
     };
 
@@ -51,6 +55,9 @@ const actions = (state, ...actionSpecs) =>
     actionSpecs.forEach(spec => {
         if (isObject(spec[0])) {
             state.epsilons.push(...spec);
+            return;
+        } else if (isFunction(spec[0])) {
+            action(state, spec[0].name, spec[1], spec[0]);
             return;
         }
 
@@ -123,6 +130,21 @@ const checkPath = (states, actions = []) => {
 const launch = async (browserOpts, launchFn) => {
     const browser = await chromium.launch(browserOpts);
     const coverageMap = createCoverageMap();
+    let uid = 0;
+    const lines = [];
+
+    const makeLog = () => {
+        const id = uid++;
+        lines[id] = '';
+
+        // TODO: figure out a way to allow the user to continue console.logging,
+        // but also prepend these to the output
+        return str => {
+            lines[id] += str;
+            console.clear();
+            lines.forEach(li => console.log(li));
+        };
+    };
 
     const run = async (pageOpts, ...actions) => {
         actions = actions.flat();
@@ -130,19 +152,23 @@ const launch = async (browserOpts, launchFn) => {
         if (isArray(pageOpts)) actions = pageOpts.concat(actions);
 
         const reached = checkPath(start, actions);
-        if (reached.length !== actions.length)
-            throw new Error(`Action route not found.\nReached: ${JSON.stringify(reached)}\nProvided: ${JSON.stringify(actions)}`);
+        assert(reached.length === actions.length,
+            `Action route not found.\nReached: ${JSON.stringify(reached)}\nProvided: ${JSON.stringify(actions)}`);
+
+        const writeToLine = makeLog();
 
         const page = await browser.newPage(isObject(pageOpts) ? pageOpts : undefined);
         const fixtures = Object.freeze({ browser, page, context: {} });
+
+        writeToLine('| ');
 
         await startCoverage(page);
 
         let first = true;
         let [root, epsilon] = close(start);
         await asyncForEach(actions, async action => {
-            if (!first) process.stdout.write(' > ');
-            process.stdout.write(action);
+            if (!first) writeToLine(' > ');
+            writeToLine(action);
             first = false;
 
             const tryState = async (nextStates, state) => {
@@ -173,8 +199,6 @@ const launch = async (browserOpts, launchFn) => {
             // no transitions found, scan the epsilons
             [root, epsilon] = close(await asyncReduce(epsilon, tryState, []));
         });
-
-        process.stdout.write('\n');
 
         await stopCoverage(coverageMap, page);
     };
