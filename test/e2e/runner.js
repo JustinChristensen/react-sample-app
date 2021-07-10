@@ -6,8 +6,6 @@ const assert = require('assert/strict');
 const v8ToIstanbul = require('v8-to-istanbul');
 
 // TODO:
-// - does it make sense for the inner loop to potentially trigger multiple transitions for a single action?
-//      i.e., should it stop after finding the first transition in either the root set or the epsilons?
 // - should run return the current set of states back to the caller, so that they can be fed into another run?
 //      i.e. should run be re-entrant, so that runs can be composed together?
 // - think about how best to annotate a run with a description of the test, maybe something like:
@@ -17,6 +15,7 @@ const v8ToIstanbul = require('v8-to-istanbul');
 //      request a textual representation of the NFA graph, with state tags and actions, and so on
 // - use assertions instead of throwing errors
 // - timings and logging
+// - API for loading data from external sources prior to the test run (so you can select elements from the UI based on data in the UI's environment)
 
 const isArray = Array.isArray;
 const isString = s => typeof s === 'string';
@@ -187,7 +186,7 @@ const launch = async (browserOpts, launchFn) => {
                 return nextStates;
             };
 
-            // scan the root set for viable transitions on the action
+            // scan the root set for viable transitions on the action (and make any that are found)
             root = await asyncReduce(root, tryState, []);
 
             // we found transitions in the root set, no need to scan the epsilons

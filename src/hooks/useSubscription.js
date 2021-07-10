@@ -15,10 +15,9 @@ export const useSubscription = fn => {
     const { store, subscribers } = useContext(ReduxContext) || {};
 
     useLayoutEffect(() => {
-        if (subscribers) {
-            const handle = addSub(subscribers, fn);
-            return () => removeSub(subscribers, handle);
-        }
+        if (!subscribers) return;
+        const handle = addSub(subscribers, fn);
+        return () => removeSub(subscribers, handle);
     }, [store, subscribers]);
 };
 

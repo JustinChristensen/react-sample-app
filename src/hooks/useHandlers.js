@@ -35,12 +35,10 @@ const addContextToEvents = props => {
 };
 
 export const useHandlers = (handlers, userProps) => {
-    const doHook = props => {
-        return Object.freeze(addContextToEvents({
-            ...handlers,
-            ...props
-        }));
-    };
+    const doHook = props => Object.freeze(addContextToEvents({
+        ...handlers,
+        ...props
+    }));
 
     // curried to allow for composition
     return userProps ? doHook(userProps) : doHook;

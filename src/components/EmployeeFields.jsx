@@ -42,7 +42,7 @@ export const EmployeeFields = props => {
         useT,
         useUid,
         usePropsSelector(s => ({
-            departments: s.departments,
+            departments: s.departments
         })),
         useHandlers({
             onEmployeeFieldChange: defaultOnEmployeeFieldChange,

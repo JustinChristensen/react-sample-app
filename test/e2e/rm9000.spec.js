@@ -240,7 +240,7 @@ actions(start,
 
 );
 
-launch({ headless: false }, async ({ run, runAll }) => {
+launch({ headless: !process.env.NO_HEADLESS }, async ({ run, runAll }) => {
     await runAll(
         run('goHome', 'fillAddEmployeeForm', 'submitAddEmployeeForm', 'changeEmployeeDepartment', 'deleteEmployee'),
         run('goHome', 'clickLocaleMenu', 'clickFrance'),
