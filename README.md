@@ -90,7 +90,7 @@ This amounts to combining separate reducers together into a reducer that contain
 * [AppHeader]  
   The next logical step after establishing that hooks should only operate on props is to then move that composed hook pipeline out into a higher order component, such as `ApplyToProps`.
   
-  This removes the need for pseudo-hooks like `useDefaults`, as destructured paramters with default values can be used instead. In `AppHeader`, `useUid` and `useHandlers` provide the prop-overridable defaults for `$uid` and `onDropdownKeyUp`, and props `itemIdFn` and `renderFn` get their default values through Javascript's default parameters mechanism.
+  This removes the need for pseudo-hooks like `useDefaults`, as destructured parameters with default values can be used instead. In `AppHeader`, `useUid` and `useHandlers` provide the prop-overridable defaults for `$uid` and `onDropdownKeyUp`, and props `itemIdFn` and `renderFn` get their default values through Javascript's default parameters mechanism.
 
   This also simplifies the code within the actual component function itself. With this change it's clear that the component really is a function of it's `props`, and nothing more. 
 
