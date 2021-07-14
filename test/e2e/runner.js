@@ -10,6 +10,9 @@ const v8ToIstanbul = require('v8-to-istanbul');
 //      i.e. should run be re-entrant, so that runs can be composed together?
 // - think about how best to annotate a run with a description of the test, maybe something like:
 //      await test('adds and deletes some employees', run('addEmployee', 'addEmployee', 'addEmployee', 'deleteEmployee'))
+// - group transitions into an array:
+//      const addThreeEmployees = Array(3).fill('addEmployee');
+//      run('goHome', addThreeEmployees, ...)
 // - format exceptions thrown from the transition and state functions
 // - command line interface, that lets the user specify runs on the command line, host and port number for the target,
 //      request a textual representation of the NFA graph, with state tags and actions, and so on
