@@ -1,5 +1,5 @@
 import PropTypes from 'prop-types';
-import { usePropsSelector, useT, useUid, useHandlers, useDefaults } from '../hooks';
+import { usePropsSelector, useT, useUid, useHandlers } from '../hooks';
 import { compose, identity } from '../utils/fn.js';
 import { actions } from '../reducers';
 import { detectBrowserLocale, fetchMissingMessages } from '../lang.js';
@@ -12,23 +12,26 @@ export const defaultOnDropdownMenuKeyUp = e => {
     else if (e.key === 'ArrowDown') maybeFocusItem(li.nextElementSibling);
 };
 
-export const HeaderMenu = props => {
-    const {
-        $uid,
-        className,
-        items,
-        selectedItem,
-        itemIdFn,
-        hoverText,
-        renderItem,
-        onDropdownMenuKeyUp,
-        onDropdownMenuClick
-    } = compose(
-        useUid,
-        useHandlers({ onDropdownMenuKeyUp: defaultOnDropdownMenuKeyUp }),
-        useDefaults({ itemIdFn: identity, renderItem: identity })
-    )(props);
+export const ApplyToProps = (name, fn, Component) => {
+    const WrappedComponent = props => Component(fn(props));
+    WrappedComponent.displayName = `ApplyToProps(${name})`;
+    return WrappedComponent;
+};
 
+export const HeaderMenu = ApplyToProps('HeaderMenu', compose(
+    useUid,
+    useHandlers({ onDropdownMenuKeyUp: defaultOnDropdownMenuKeyUp })
+), ({
+    $uid,
+    className,
+    items,
+    selectedItem,
+    hoverText,
+    onDropdownMenuKeyUp,
+    onDropdownMenuClick,
+    itemIdFn = identity,
+    renderItem = identity
+}) => {
     const unselectedItems = items.filter(p => itemIdFn(p) !== itemIdFn(selectedItem));
     const menuId = `header-menu-${$uid}`;
     const buttonClasses = classes => `${classes} btn py-3 px-4 text-white`;
@@ -49,7 +52,7 @@ export const HeaderMenu = props => {
             </ul>
         </div>
     );
-};
+});
 
 HeaderMenu.propTypes = {
     $uid: PropTypes.number,

@@ -83,9 +83,17 @@ This amounts to combining separate reducers together into a reducer that contain
   This is a lightweight alternative to [react-redux]'s ReduxContext that makes use of the fact that Javascript's `Map` type is insertion ordered, and can then be used as an alternative to [react-redux]'s doubly linked list approach to maintaining a list of subscribers.
 
 * [EmployeeFields]  
-  The net effect of all of the above design decisions is that components can be automatically written to allow `props` to override any defaults provided by using hooks to select properties from the store, or to provide default handlers that automatically get Redux store functions injected into the event object. 
+  The net effect of all of the above design decisions is that components can be automatically written to allow `props` to override any defaults provided by hooks that do things like selecting properties from the store, or providing default handlers that automatically get Redux store functions injected into the event object. 
 
   Because of this, components are pure functions by default, and only become stateful when there's an ancestor context that provides a Redux store. This greatly simplifies development, maintenance, and testing of React components.
+
+* [AppHeader]  
+  The next logical step after establishing that hooks should only operate on props is to then move that composed hook pipeline out into a higher order component, such as `ApplyToProps`.
+  
+  This removes the need for pseudo-hooks like `useDefaults`, as destructured paramters with default values can be used instead. In `AppHeader`, `useUid` and `useHandlers` provide the prop-overridable defaults for `$uid` and `onDropdownKeyUp`, and props `itemIdFn` and `renderFn` get their default values through Javascript's default parameters mechanism.
+
+  This also simplifies the code within the actual component function itself. With this change it's clear that the component really is a function of it's `props`, and nothing more. 
+
 
 ### test/e2e
 
@@ -103,6 +111,7 @@ TODO
 
 [ReduxContext]: ./src/components/ReduxContext.jsx
 [EmployeeFields]: ./src/components/EmployeeFields.jsx
+[AppHeader]: ./src/components/AppHeader.jsx
 
 [utils/redux]: ./src/utils/redux.js
 
