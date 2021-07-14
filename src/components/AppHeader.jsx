@@ -12,13 +12,15 @@ export const defaultOnDropdownMenuKeyUp = e => {
     else if (e.key === 'ArrowDown') maybeFocusItem(li.nextElementSibling);
 };
 
-export const ApplyToProps = (name, fn, Component) => {
+export const getDispName = Component => Component.displayName || Component.name;
+
+export const ApplyToProps = (fn, Component, name) => {
     const WrappedComponent = props => Component(fn(props));
-    WrappedComponent.displayName = `ApplyToProps(${name})`;
+    WrappedComponent.displayName = `ApplyToProps(${name || getDispName(Component)})`;
     return WrappedComponent;
 };
 
-export const HeaderMenu = ApplyToProps('HeaderMenu', compose(
+export const HeaderMenu = ApplyToProps(compose(
     useUid,
     useHandlers({ onDropdownMenuKeyUp: defaultOnDropdownMenuKeyUp })
 ), ({
@@ -52,7 +54,7 @@ export const HeaderMenu = ApplyToProps('HeaderMenu', compose(
             </ul>
         </div>
     );
-});
+}, 'HeaderMenu');
 
 HeaderMenu.propTypes = {
     $uid: PropTypes.number,
