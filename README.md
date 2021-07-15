@@ -18,7 +18,9 @@ yarn start
 ### Running Tests
 
 ```bash
-# see below
+# in one terminal window
+yarn start
+# in another
 yarn e2e
 ```
 
