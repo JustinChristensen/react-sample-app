@@ -2,6 +2,10 @@ const { createCoverageMap } = require('istanbul-lib-coverage');
 const { createContext } = require('istanbul-lib-report');
 const { create: createReporter } = require('istanbul-reports');
 const { chromium } = require('playwright');
+const { spawn } = require('child_process');
+const os = require('os');
+const path = require('path');
+const pkg = require('../../package.json');
 const assert = require('assert/strict');
 const v8ToIstanbul = require('v8-to-istanbul');
 
@@ -129,8 +133,65 @@ const checkPath = (states, actions = []) => {
     }, []);
 };
 
+const defaultExecPath = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+
+const defaultArgs = [
+    '--remote-debugging-port=0',
+    '--no-startup-window',
+    '--enable-automation',
+    '--no-first-run'
+];
+
+const defaultOptions = {
+    detached: true,
+    stdio: ['ignore', 'pipe', 'pipe']
+};
+
+const DETACH_TIMEOUT = 3000;
+
+class DevToolsTimeoutError extends Error {
+    constructor(timeout) {
+        super(`Process launched, but no devtools server could be found within ${timeout} milliseconds`);
+        this.name = 'DevToolsTimeoutError';
+    }
+}
+
+const terminate = proc => proc.kill() || proc.kill('SIGKILL');
+
+const spawnDetached  = (args = defaultArgs, options = defaultOptions, execPath = defaultExecPath) => new Promise((resolve, reject) => {
+    args = args.concat(`--user-data-dir=${path.join(os.tmpdir(), `${pkg.name}-chromedata`)}`);
+
+    const chrome = spawn(execPath, args, options);
+    chrome.unref();
+
+    const timeoutId = setTimeout(() => {
+        terminate(chrome);
+        reject(new DevToolsTimeoutError(DETACH_TIMEOUT));
+    }, DETACH_TIMEOUT);
+
+    chrome.stderr.on('data', data => {
+        const m = String(data).match(/devtools listening on (ws:\/\/\S+)/i);
+        if (m) {
+            clearTimeout(timeoutId);
+            resolve(m[1]);
+        }
+    });
+    chrome.on('error', err => {
+        clearTimeout(timeoutId);
+        reject(err);
+    });
+});
+
 const launch = async (browserOpts, launchFn) => {
-    const browser = await chromium.launch(browserOpts);
+    const detached = process.env.DETACHED !== undefined;
+    let browser;
+
+    if (detached) {
+        browser = await chromium.connectOverCDP({ endpointURL: await spawnDetached(), timeout: 2000 });
+    } else {
+        browser = await chromium.launch(browserOpts);
+    }
+
     const coverageMap = createCoverageMap();
     let uid = 0;
     const lines = [];
@@ -209,7 +270,7 @@ const launch = async (browserOpts, launchFn) => {
 
     await launchFn({ browser, run, runAll });
     reportCoverage(coverageMap);
-    await browser.close();
+    if (!detached) await browser.close();
 };
 
 module.exports = {
