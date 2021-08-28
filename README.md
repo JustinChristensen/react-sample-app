@@ -58,7 +58,7 @@ So with that in mind, this project chose to write it's own barebones alternative
 * [useT]  
   Injects a special property, `$t`, into props that lets the component look up translated messages by key.
 
-* [useUid]*  
+* [useUid]  
   Injects a unique integer ID into props, to be used in generating unique ID attributes and other similar purposes.
 
 \* Pseudo-hook. Not actually dependent on the React hooks API.
